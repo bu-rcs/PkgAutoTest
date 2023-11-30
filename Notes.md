@@ -1,5 +1,17 @@
 # Notes from the project meetings
 
+## November 30, 2023
+Brian, Yun, Dennis
+
+1. Ideas:
+* (Dennis) When testing a GUI program, can we get a screenshot of the headless X server?  Ans: [yes](https://unix.stackexchange.com/questions/365268/how-do-i-take-a-screen-shot-of-my-xvfb-buffer), using the "xwd" utility.
+2. Major components:
+* Test searching script that finds all test.qsub files (based on specific search criteria) and creates a list to be submitted. 
+* A script that submits the list of test.qsub's to the queue along with a job to run the post-test analysis.
+* Reporting script that analyzes the pass/fail status of all tests, provides a useful report and some standard CSV type data for use in other reporting if desired.
+* Improved documentation, guidance, and examples of writing test.qsub scripts.
+
+
 ## November 7, 2023
 Brian, Yun, Dennis
 
