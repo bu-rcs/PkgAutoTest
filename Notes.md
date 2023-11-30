@@ -7,9 +7,19 @@ Brian, Yun, Dennis
 * (Dennis) When testing a GUI program, can we get a screenshot of the headless X server?  Ans: [yes](https://unix.stackexchange.com/questions/365268/how-do-i-take-a-screen-shot-of-my-xvfb-buffer), using the "xwd" utility.
 2. Major components:
 * Test searching script that finds all test.qsub files (based on specific search criteria) and creates a list to be submitted. 
-* A script that submits the list of test.qsub's to the queue along with a job to run the post-test analysis.
+* A submission script that submits the list of test.qsub's to the queue along with a job to run the post-test analysis.
 * Reporting script that analyzes the pass/fail status of all tests, provides a useful report and some standard CSV type data for use in other reporting if desired.
-* Improved documentation, guidance, and examples of writing test.qsub scripts.
+* Improved documentation, guidance, and examples of writing test.qsub scripts. 
+3. Meeting schedule:
+* Weekly, Tuesdays, 10AM-11AM, viz Zoom.
+4.  Minimal starting point:
+  * Basic way to run the test searching script so it finds some test.qsb files. 
+  * Format of a test.qsub list from the test searching script. Needed for the submission script.
+  * Sample output directory for use with the reporting script.
+
+
+
+Install module z/1.0: compile & install, edit modulefile.lua, test the install manually.  Run module_check to make sure modulefile is ok. Publish to module.8 .  Check the test.qsub works as expected. 
 
 
 ## November 7, 2023
