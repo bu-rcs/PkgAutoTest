@@ -5,6 +5,7 @@ Brian, Yun, Dennis
 
 1. Ideas:
 * (Dennis) When testing a GUI program, can we get a screenshot of the headless X server?  Ans: [yes](https://unix.stackexchange.com/questions/365268/how-do-i-take-a-screen-shot-of-my-xvfb-buffer), using the "xwd" utility.
+* (Dennis) Could this process be run via Nextflow?
 2. Major components:
 * Test searching script that finds all test.qsub files (based on specific search criteria) and creates a list to be submitted. 
 * A submission script that submits the list of test.qsub's to the queue along with a job to run the post-test analysis.
@@ -16,10 +17,10 @@ Brian, Yun, Dennis
   * Basic way to run the test searching script so it finds some test.qsb files. 
   * Format of a test.qsub list from the test searching script. Needed for the submission script.
   * Sample output directory for use with the reporting script.
+5. Project timeline for remainder of 2023:
+ * Dec 5th - issues 1, 2, and 4 prototyped.  Note: issue 2 depends on issue 1 delivering an initial file format in a timely fashion by Brian.
 
 
-
-Install module z/1.0: compile & install, edit modulefile.lua, test the install manually.  Run module_check to make sure modulefile is ok. Publish to module.8 .  Check the test.qsub works as expected. 
 
 
 ## November 7, 2023
