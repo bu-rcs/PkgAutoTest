@@ -59,7 +59,7 @@ def find_test_qsub(mod_names):
         # Then, look for a test/test.qsub.
         test_path = os.path.join(mod_path,'test','test.qsub')
         if os.path.isfile(test_path):
-            row = f"{mn.split('/')[0]},{mn},{test_path}{os.linesep}"
+            row = f"{mn.split('/')[0]},{mn.split('/')[1]},{mn},{test_path}{os.linesep}"
             test_list.append(row)
     return test_list
 

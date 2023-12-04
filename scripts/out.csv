@@ -1,5 +1,5 @@
 module_name,module_name_version,test_path
-openmpi,openmpi/4.1.5_gnu-12.2.0,/share/pkg.8/openmpi/4.1.5_gnu-12.2.0/test/test.qsub
-openmpi,openmpi/4.1.5_intel-2023,/share/pkg.8/openmpi/4.1.5_intel-2023/test/test.qsub
-openmpi,openmpi/4.1.5_nvidia-2023-23.5,/share/pkg.8/openmpi/4.1.5_nvidia-2023-23.5/test/test.qsub
-openmpi,openmpi/4.1.5,/share/pkg.8/openmpi/4.1.5/test/test.qsub
+openmpi,4.1.5_gnu-12.2.0,openmpi/4.1.5_gnu-12.2.0,/share/pkg.8/openmpi/4.1.5_gnu-12.2.0/test/test.qsub
+openmpi,4.1.5_intel-2023,openmpi/4.1.5_intel-2023,/share/pkg.8/openmpi/4.1.5_intel-2023/test/test.qsub
+openmpi,4.1.5_nvidia-2023-23.5,openmpi/4.1.5_nvidia-2023-23.5,/share/pkg.8/openmpi/4.1.5_nvidia-2023-23.5/test/test.qsub
+openmpi,4.1.5,openmpi/4.1.5,/share/pkg.8/openmpi/4.1.5/test/test.qsub
