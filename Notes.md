@@ -1,5 +1,29 @@
 # Notes from the project meetings
 
+## December 5, 2023
+Brian, Yun, Dennis, Andy
+
+1. Done since last meeting:
+* (brian) find_qsub.py - prototype of finding test.qsub files.  Sample output CSV format created.
+* (dennis & andy) - Nextflow progress. sample: `/projectnb/scv/milechin/nextflow`  
+
+2. find_qsub.py  improvements
+* use "module show" instead of "module load" and parse for SCC_NAME_DIR - this avoids having to load prequisites.
+3. Nextflow - nextflow sample at `/projectnb/scv/milechin/nextflow`
+* nextflow essentially replaces a call to qsub. How can we specify resources (i.e. multiple cores) to nextflow?  It could be parsed by find_qsub.py and included in the input CSV format. This would have to be handled inside of nextflow. Or, multiple CSV files for single core, 4 core, GPU, etc with a matching nextflow config for each category of job.
+* Feasability? - lots of custom work to make nextflow work like this. But - the Nextflow reporting is highly detailed and may solve a lot of issues for reporting.
+* Can we add custom columns to the report - count of pass/fail tests?  Would we need to modify test.qsub to make this easier to do? Can Nextflow produce CSV in addition to HTML for use in other tools? n 
+4. (yun) Fixes to existing test.qsub
+* Should be runnable by any account.
+* Some test.qsub write to the test directory (permissions problem)
+* should be written so that test.qsub can be _submitted_ from any directory - avoid issues with relative directory usage, etc.
+5. A new account, `rcstest` would be useful to run the Nextflow test framework.
+6. TO DO:
+* (brian) - fix find_qsub.py use `module show` and extract qsub command parameters for the csv - key columns: omp, gpu, gpu_c, mpi
+* (yun & andy) - investigate Nextflow capabilities further, especially diff. process runners for different jobs (1 core, 4 core, etc). Also look into customizing the HTML/text report, or the "Trace Report" as discussed above.
+* (dennis) - enjoy your vacation
+  
+
 ## November 30, 2023
 Brian, Yun, Dennis
 
