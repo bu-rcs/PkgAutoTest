@@ -65,7 +65,7 @@ def find_test_qsub(mod_names):
 
 def save_csv(test_list, out_csv):
     with open(out_csv,'w') as f:
-        f.write("module_name,module_name_version,test_path" + os.linesep)
+        f.write("module_name,version,module_name_version,test_path" + os.linesep)
         for tl in test_list:
             f.write(tl)
     
