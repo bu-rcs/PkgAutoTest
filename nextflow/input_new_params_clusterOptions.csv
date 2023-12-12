@@ -1,0 +1,6 @@
+module,qsub_test,clusterOptions
+proj/9.3.0,/share/pkg.8/proj/9.3.0/test/test.qsub,-pe omp 1 -P scv
+gdal/3.6.4,/share/pkg.8/gdal/3.6.4/test/test.qsub,-pe mpi_16_tasks_per_node 32 -P scv
+sqlite3/3.44.2,/share/pkg.8/sqlite3/3.44.2/test/test.qsub,-pe omp 2 -l gpus=1 -l gpu_c=6.0 -P scv
+
+
