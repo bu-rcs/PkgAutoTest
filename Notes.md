@@ -1,5 +1,40 @@
 # Notes from the project meetings
 
+## December 19, 2023
+Brian, Yun, Dennis
+
+1. Recap of Nextflow breakthrough from last week.
+2. The trace report from NF should be easily parseable by Perl or Bash to give detailed error reporting on a module that failed one or more of its tests: https://www.nextflow.io/docs/latest/tracing.html#trace-report
+3. Exit codes can be set to give more info on failed tests.
+4. There is some configuration possible for the HTML execution report:  https://www.nextflow.io/docs/latest/config.html#config-report
+5. Dennis suggests adding the module installer name to the CSV file (found in notes.txt).
+
+TODO after Intersession:
+1. Come up with a version 1.0 specification:
+   * define CSV format for Nextflow input
+   * define exact way to call find_qsub.py and how we want to use it.
+   * Create Nextflow pipeline with any customizations
+   * error reporting tool (prob. in Perl) that gives more detail than Nextflow does.
+2. Create a test account to handle running tests.  "rcstest" is in line with rcsr, rcspy. All apps group users need to be able to log in as rcstest.
+
+## December 12, 2023
+Brian, Yun
+
+1. Looking into Nextflow:
+* we can select a penv (omp or mpi_N_tasks_per_node):  https://www.nextflow.io/docs/latest/process.html#process-penv
+* we can select cpus: https://www.nextflow.io/docs/latest/process.html#process-cpus
+* and time: https://www.nextflow.io/docs/latest/process.html#process-time
+* or arbitrary things like mem_per_core with clusterOptions: https://www.nextflow.io/docs/latest/process.html#process-clusteroptions
+* so if this info is in the CSV from find_qsub.py then this should be readable and set up using the Dynamic Process info as described in issue #4.
+
+2. Nextflow test:
+* In the code nextflow/ folder look at the `example_dynamic_clusterOptions.nf` and `input_new_params_clusterOptions.csv` files. These use cluster options pulled from the test.qsub file and a dynamic process to let us set arbitrary per-test queue options.
+
+3. TODO:
+* Brian - work on find_qsub.py -> extract qsub options, add to CSV format.
+* Yun - look into modifying or customizing the reporting. Can this be done from within Nextflow? Or post-modify report.html with Perl or something?
+* Modify newpkg so it doesn't always create template test.qsub files, or makes them unrunnable or easily identifiable so they don't get picked up by find_qsub.py. Or rename to test.qsub.template, or use an MD5 hash to identify. 
+
 ## December 5, 2023
 Brian, Yun, Dennis, Andy
 
