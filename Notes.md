@@ -1,5 +1,22 @@
 # Notes from the project meetings
 
+## December 19, 2023
+Brian, Yun, Dennis
+
+1. Recap of Nextflow breakthrough from last week.
+2. The trace report from NF should be easily parseable by Perl or Bash to give detailed error reporting on a module that failed one or more of its tests: https://www.nextflow.io/docs/latest/tracing.html#trace-report
+3. Exit codes can be set to give more info on failed tests.
+4. There is some configuration possible for the HTML execution report:  https://www.nextflow.io/docs/latest/config.html#config-report
+5. Dennis suggests adding the module installer name to the CSV file (found in notes.txt).
+
+TODO after Intersession:
+1. Come up with a version 1.0 specification:
+   * define CSV format for Nextflow input
+   * define exact way to call find_qsub.py and how we want to use it.
+   * Create Nextflow pipeline with any customizations
+   * error reporting tool (prob. in Perl) that gives more detail than Nextflow does.
+2. Create a test account to handle running tests.  "rcstest" is in line with rcsr, rcspy. All apps group users need to be able to log in as rcstest.
+
 ## December 12, 2023
 Brian, Yun
 
