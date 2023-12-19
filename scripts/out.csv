@@ -1,5 +1,6 @@
-module_name,module_name_version,test_path
-openmpi,4.1.5_gnu-12.2.0,openmpi/4.1.5_gnu-12.2.0,/share/pkg.8/openmpi/4.1.5_gnu-12.2.0/test/test.qsub
-openmpi,4.1.5_intel-2023,openmpi/4.1.5_intel-2023,/share/pkg.8/openmpi/4.1.5_intel-2023/test/test.qsub
-openmpi,4.1.5_nvidia-2023-23.5,openmpi/4.1.5_nvidia-2023-23.5,/share/pkg.8/openmpi/4.1.5_nvidia-2023-23.5/test/test.qsub
-openmpi,4.1.5,openmpi/4.1.5,/share/pkg.8/openmpi/4.1.5/test/test.qsub
+module_name,version,module_name_version,test_path,qsub_options
+openmpi,4.1.5-222,openmpi/4.1.5-222,/share/pkg.8/openmpi/4.1.5/test/test.qsub,-P scv -j y
+openmpi,4.1.5_gnu-12.2.0,openmpi/4.1.5_gnu-12.2.0,/share/pkg.8/openmpi/4.1.5_gnu-12.2.0/test/test.qsub,-P scv -j y
+openmpi,4.1.5_intel-2023,openmpi/4.1.5_intel-2023,/share/pkg.8/openmpi/4.1.5_intel-2023/test/test.qsub,-P scv -j y -pe mpi_16_tasks_per_node 32
+openmpi,4.1.5_nvidia-2023-23.5,openmpi/4.1.5_nvidia-2023-23.5,/share/pkg.8/openmpi/4.1.5_nvidia-2023-23.5/test/test.qsub,-P scv -j y
+openmpi,4.1.5,openmpi/4.1.5,/share/pkg.8/openmpi/4.1.5/test/test.qsub,-P scv -j y
