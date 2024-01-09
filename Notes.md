@@ -1,5 +1,36 @@
 # Notes from the project meetings
 
+## January 9, 2024
+Brian, Yun, Dennis, Andy
+
+1. Went through Dennis' Nextflow investigations, as documented in issue 4.
+  * Use of Nextflow tracers and the Nextflow log give us greater access to what's happening with each job.
+  * The Nextflow log output has an option to print stderr, which would let us modify the test.qsub files so that they provide more error information to stderr. The log can be run anytime once a workflow is completed. Example:
+```
+# pseudo-bash
+if [ file_size_check_passed ] then
+   echo "Passed"
+else
+   echo "Error"
+   >&2 echo "File size check failed, test #2 of 3"
+fi
+```
+2. We could manipulate the return error code to indicate which tests failed using bit shifting and masking to embed test counts and test indices.
+3. CSV format:
+```
+# note: qsub_options must NOT include "-j y" otherwise the stderr output above won't work right!
+# module_prereqs: semicolon separated
+# Example:
+module_name, version, module_name_version,module_pkg_dir, module_installer,module_install_date,module_category,module_prereqs, test_path,qsub_options
+openmpi,4.1.5,openmpi/4.1.5,/share/pkg.8,bgregor,06/27/23,libraries,prereqs;go;here,/share/pkg.8/openmpi/4.1.5/test/test.qsub,-P scv
+```
+4. How to run find_qsub.py: Brian will work on ideas before the next meeting.
+5. TO DO:
+   * (yun) Modify newpkg - remove statements about Spack. Remove copies of example files and readme's that clutter the test directory, replace with a symlink to copies of an examples dir in the newpkg module. For bash example tests modify as above to print into to stderr.
+   * (brian) work on find_qsub.py command line arguments and implementing new CSV output.
+   * (dennis) work on processing stdout/stderr stuff into the report, working with the nextflow log.
+   * (brian) - email for test account to be created. (DONE).
+   
 ## December 19, 2023
 Brian, Yun, Dennis
 
