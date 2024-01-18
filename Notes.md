@@ -1,5 +1,8 @@
 # Notes from the project meetings
 
+## Next Meeting topics
+1. (Dennis) - When `newpkg` creates a new module, I was thinking we should have the template `qsub.test` fail by default.  That way if for some reason it is not updated, it will fail the test and will get our attention.
+
 ## January 9, 2024
 Brian, Yun, Dennis, Andy
 
