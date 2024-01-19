@@ -2,6 +2,7 @@
 
 ## Next Meeting topics
 1. (Dennis) - When `newpkg` creates a new module, I was thinking we should have the template `qsub.test` fail by default.  That way if for some reason it is not updated, it will fail the test and will get our attention.
+2. (Dennis) - This maybe for best practices for test.qsub.  I noticed that for my module "autconf" when the module failed to load, it tested the system autoconf binary instead.  I am thinking maybe we need to use $SCC_<MODULE_NAME>_BIN to make sure the correct binary is being tested.
 
 ## January 9, 2024
 Brian, Yun, Dennis, Andy
