@@ -1,8 +1,25 @@
 # Notes from the project meetings
 
-## Next Meeting topics
-1. (Dennis) - When `newpkg` creates a new module, I was thinking we should have the template `qsub.test` fail by default.  That way if for some reason it is not updated, it will fail the test and will get our attention.
-2. (Dennis) - This maybe for best practices for test.qsub.  I noticed that for my module "autconf" when the module failed to load, it tested the system autoconf binary instead.  I am thinking maybe we need to use $SCC_<MODULE_NAME>_BIN to make sure the correct binary is being tested.
+## January 30, 2024
+1. TO-DO from last meeting
+  * (yun) Modify newpkg - remove statements about Spack. Remove copies of example files and readme's that clutter the test directory, replace with a symlink to copies of an examples dir in the newpkg module. For bash example tests modify as above to print into to stderr.
+    * v0.1.9 needs a few minor tweaks:  make a copy of test.qsub, not a symlink. Make a data/ dir.  Put the 4 files (bash_tests.txt, readme.*) in newpkg/ver/install/doc, symlink to that doc directory.
+    * Add a check for 1 log file argument to test.qsub, i.e. "test.qsub /path/to/logfile" is right, "test.qsub" prints an error. If a full path to the log file isn't given, make it assume to write it to the working directory. "sh test.qsub mylog"
+    * See item 2 below, near the top of test.qsub set an environment variable "TEST_COMPLETE=-1"
+then down at the bottom check that, if TEST_COMPLETE=-1 print Error and return exit code 9999 (which we mean "not implemented"). A comment by TEST_COMPLETE=-1 tells us to set this to something else when completed.
+  * (brian) work on find_qsub.py command line arguments and implementing new CSV output.
+    * This is in progress.
+  * (dennis) work on processing stdout/stderr stuff into the report, working with the nextflow log. (none yet)
+  * (brian) - email for test account to be created. (DONE) Mike said why?  
+2. (Dennis) - When `newpkg` creates a new module, I was thinking we should have the template `test.qsub` fail by default.  That way if for some reason it is not updated, it will fail the test and will get our attention. At the top of test.qsub, have a print statement print "Error" with a comment to delete this before publication. This helps us find tests that are not completed yet. 
+3. (Dennis) - This maybe for best practices for test.qsub.  I noticed that for my module "autconf" when the module failed to load, it tested the system autoconf binary instead.  I am thinking maybe we need to use $SCC_<MODULE_NAME>_BIN to make sure the correct binary is being tested.
+* This should be listed in a best practices guide, generally check locations of binaries to see if they're in the right place in /share/pkg.8. This can be added to the bash_tests.txt list of recipes.
+4. New student interns are here! We need to check that the stderr output lines like: "   >&2 echo "File size check failed, test #2 of 3"" work with nextflow.
+5. TODO:
+  * (Brian) finish find_qsub.py changes for the new CSV format.
+  * (Yun) newpkg changes
+  * (Dennis) test stderr in the nextflow report. See what happens. Also handle new CSV format, including auto-loading of prereq modules. 
+
 
 ## January 9, 2024
 Brian, Yun, Dennis, Andy
