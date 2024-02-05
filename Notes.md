@@ -3,10 +3,11 @@
 ## January 30, 2024
 1. TO-DO from last meeting
   * (yun) Modify newpkg - remove statements about Spack. Remove copies of example files and readme's that clutter the test directory, replace with a symlink to copies of an examples dir in the newpkg module. For bash example tests modify as above to print into to stderr.
-    * v0.1.9 needs a few minor tweaks:  make a copy of test.qsub, not a symlink. Make a data/ dir.  Put the 4 files (bash_tests.txt, readme.*) in newpkg/ver/install/doc, symlink to that doc directory.
-    * Add a check for 1 log file argument to test.qsub, i.e. "test.qsub /path/to/logfile" is right, "test.qsub" prints an error. If a full path to the log file isn't given, make it assume to write it to the working directory. "sh test.qsub mylog"
-    * See item 2 below, near the top of test.qsub set an environment variable "TEST_COMPLETE=-1"
+    * v0.1.9 needs a few minor tweaks:  make a copy of test.qsub, not a symlink. Make a data/ dir.  Put the 4 files (bash_tests.txt, readme.*) in newpkg/ver/install/doc, symlink to that doc directory. (Done)
+    * Add a check for 1 log file argument to test.qsub, i.e. "test.qsub /path/to/logfile" is right, "test.qsub" prints an error. If a full path to the log file isn't given, make it assume to write it to the working directory. "sh test.qsub mylog" (Done)
+    * See item 2 below, near the top of test.qsub set an environment variable "TEST_COMPLETE=-1" 
 then down at the bottom check that, if TEST_COMPLETE=-1 print Error and return exit code 9999 (which we mean "not implemented"). A comment by TEST_COMPLETE=-1 tells us to set this to something else when completed.
+	(Yun commented on this - bash exit code range only from 0-255, so I picked 255 as the exit code for this purpose, sysexits.h used up to 78. ) （Done）
   * (brian) work on find_qsub.py command line arguments and implementing new CSV output.
     * This is in progress.
   * (dennis) work on processing stdout/stderr stuff into the report, working with the nextflow log. (none yet)
