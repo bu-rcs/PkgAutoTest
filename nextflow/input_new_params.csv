@@ -1,5 +1,0 @@
-module,qsub_test,pe,cpus
-proj/9.3.0,/share/pkg.8/proj/9.3.0/test/test.qsub,omp,1
-gdal/3.6.4,/share/pkg.8/gdal/3.6.4/test/test.qsub,omp,4
-sqlite3/3.44.2,/share/pkg.8/sqlite3/3.44.2/test/test.qsub,omp,8
-
