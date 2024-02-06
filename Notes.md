@@ -1,5 +1,32 @@
 # Notes from the project meetings
 
+## February 6, 2024
+1. TO from last meeting:
+* (brian) find_qsub.py - updated CSV output (done)
+* (yun) - newpkg updated to 0.1.9. Changes applied.
+* (dennis) - stdout/stderr in nextflow, new csv format. Progress made, Dennis will demo.
+2. Intern meeting on 2/2 (brian)
+  * Documentation needs to be provided to them.
+  * use Yun's new test.qsub format with guidelines.
+  * Need to look at tutorials, documentation, etc. to get test inputs/outputs, maybe with a time limit of 1 hour of work, if this fails then kick it over to RCS apps team.
+  * Consider the software install log - ones with shorter install times seem likely to be easier to test.
+3. What is the minimum we need to check for software to make sure it works on a new OS/CPU/etc.?
+  * Every module is a special case! The test writer must know what the software does and what it produces. We will frequently rely on users to help us with this. 
+  * Did it run? ( check shell error code ) - mininum test, did it run?
+    * This catches library errors, SIMD errors, PATH errors, missing input or config file errors.
+  * Then do some more simple sanity check:
+    * Compare output file to a previously generated reference output file?
+    * Check for words in the output file like "success!"
+    * do file size checks, etc. as needed to feel assured the software ran correctly.
+  * For libraries - do a test program compile with whatever compiler built the module.
+    * no need to check that the compiler worked ok, just run the test program.
+ 4. TODO:
+   * (brian) find_qsub.py takes an argument to check all /share/pkg.8 modules/
+   * Run current nextflow on whatever is available in /share/pkg.8
+
+     
+  
+
 ## January 30, 2024
 1. TO-DO from last meeting
   * (yun) Modify newpkg - remove statements about Spack. Remove copies of example files and readme's that clutter the test directory, replace with a symlink to copies of an examples dir in the newpkg module. For bash example tests modify as above to print into to stderr.

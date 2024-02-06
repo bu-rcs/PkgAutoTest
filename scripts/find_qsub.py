@@ -178,7 +178,7 @@ def save_csv(test_list, out_csv):
         sys.stderr.write('save_csv(): test_list is empty!\n')
         exit(-1)
     with open(out_csv, 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=HEADERS, dialect='unix')
+        writer = csv.DictWriter(csvfile, fieldnames=HEADERS, dialect='excel')
         # This writes the header row
         writer.writeheader()
         # Now loop and write out each row. Each row is a dictionary whose
