@@ -5,4 +5,4 @@ openmpi,4.1.5_intel-2024,openmpi/4.1.5_intel-2024,/share/pkg.8/openmpi/4.1.5_int
 openmpi,4.1.5_nvidia-2023-23.5,openmpi/4.1.5_nvidia-2023-23.5,/share/pkg.8/openmpi/4.1.5_nvidia-2023-23.5,bgregor,09/19/23,libraries,,/share/pkg.8/openmpi/4.1.5_nvidia-2023-23.5/test/test.qsub,-P scv -pe mpi_16_tasks_per_node 32
 openmpi,4.1.5,openmpi/4.1.5,/share/pkg.8/openmpi/4.1.5,bgregor,06/27/23,libraries,,/share/pkg.8/openmpi/4.1.5/test/test.qsub,-P scv -pe mpi_16_tasks_per_node 32
 gdal,3.1.2,gdal/3.1.2,/share/pkg.8/gdal/3.1.2,milechin,04/26/23,gis,python3/3.7.7,/share/pkg.8/gdal/3.1.2/test/test.qsub,-P scv
-gdal,3.6.4,gdal/3.6.4,/share/pkg.8/gdal/3.6.4,milechin,08/08/23,gis,,/share/pkg.8/gdal/3.6.4/test/test.qsub,-P scv
+gdal,3.6.4,gdal/3.6.4,/share/pkg.8/gdal/3.6.4,milechin,08/08/23,gis,,/share/pkg.8/gdal/3.6.4/test/test.qsub, -P scv

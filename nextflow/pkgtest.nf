@@ -1,15 +1,23 @@
 
 params.csv_input = "" // Path to CSV File produces by find_qsub.py script
+params.executor = 'sge'  // Set the executor as 'sge' by default but can be changed via arguments
+params.errorStrategy = 'ignore' // "ignore"- will continue with other tests if there is an error
+			    // "terminate" - kill all tests when error is encountered
+params.qsub_path = ""
+
 nextflow.enable.dsl=2
+
 
 workflow {
 
-// Load the csv file and split the rows into tuples.
-// Then execute runTests process
-    Channel.fromPath(params.csv_input) \
+    // Load the csv file and split the rows into tuples.
+    // Then execute runTests process
+    Channel.fromPath(params.csv_input, checkIfExists: true, type:'file') \
         | splitCsv(header:true) \
         | map { row-> tuple(row.module_name, row.version, row.module_name_version, row.module_pkg_dir, row.module_installer, row.module_install_date, row.module_category, row.module_prereqs , row.test_path, row.qsub_options) } \
-        | runTests
+        | runTests \
+        | collectFile(keepHeader:true, storeDir:'.', name: "report_" +params.csv_input) | view
+
 }
 
 
@@ -17,32 +25,47 @@ process runTests {
 
     beforeScript 'source $HOME/.bashrc' // To make module command available.
     clusterOptions "$qsub_options" // Specify qsub options from CSV file
-    executor 'sge'
-    errorStrategy 'ignore'  // "ignore"- will continue with other tests if there is an error
-			    // "terminate" - kill all tests when error is encountered
+    executor params.executor
+    errorStrategy params.errorStrategy  
     tag "$module_name_version" // Used for reporting.
-
-    input:
-    tuple val(module_name), val(version), val(module_name_version), val(module_pkg_dir), val(module_installer), val(module_install_date), val(module_category), val( module_prereqs ), val(test_path), val(qsub_options)
     
 
+    input:
+    tuple val(module_name), val(version), val(module_name_version), path(module_pkg_dir), val(module_installer), val(module_install_date), val(module_category), val( module_prereqs ), path(test_path), val(qsub_options)
+
+    output:
+    path 'test_metrics.csv'
+     
     script:
     """
+    TEST_RESULT=PASSED
     echo $NSLOTS $QUEUE
-    AUTHOR=$module_installer
-    CATEGORY=$module_category
     echo     
-    echo $module_name_version $test_path >> log.txt
+    echo $test_path >> log.txt
     bash $test_path log.txt 1>  results.txt 
 
-    if [ "\$(grep -c -v Passed results.txt)" -gt 0 ]
+    EXIT_CODE=\$?
+    PASSED=`grep -iow 'Passed' results.txt | wc -l`
+    FAILED=`grep -iow 'Error' results.txt | wc -l`
+    LOG_ERRORS=`grep -iow 'error' log.txt | wc -l`
+
+    # Test result fails if words other than "Passed" are found in 
+    # results.txt
+    if [ "\$(grep -c -v Passed results.txt)" -gt 0 ] || EXIT_CODE -ne 0 || LOG_ERRORS -gt 0
     then
-       exit 1  
+       TEST_RESULT=FAILED  
     fi 
 
 
+    # Write the test result metrics to a csv file
+    cat > test_metrics.csv << EOF
+    results,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
+    \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date,  \$PWD
+    EOF
+
     """
 }
+
 
 
 
