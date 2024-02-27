@@ -1,5 +1,32 @@
 # Notes from the project meetings
 
+## February 27, 2024
+1. TODO from last time:
+*  (brian) find_qsub.py takes an argument to check all /share/pkg.8 modules/   (not done yet)
+*  newpkg is now 0.2.0
+2. Question from Katia:
+Could you clarify how the “automatic testing” is going to do its task?
+Say, I have a regular case: the test directory contains:
+-	test.qsub
+-	input_file
+-	output_expected_file
+
+Where will this test run? Is it going to submitted from its original directory? In this case it will most likely fail due to permissions. Is it going to be copied to $TMPDIR? In this case those tests that copy their files to $TMDIR might fail. Is it going to be copied somewhere else?
+
+* Nextflow runs test.qsub from its own directory, i.e. like: `(pwd is /path/to/nextflow) qsub /share/pkg.8/xyz/1.0/test/test.qsub`  The documentation says to accommodate that (`cp $SCC_XYZ_DIR/../test/input.txt $TMPDIR`). Dennis says Nextflow can be configured to copy the test directory to the Nextflow hash'd working directory so test.qsub gets executed locally. This makes any older test.qsub that expect to read from its own directory work. 
+
+3. (brian) Unpublish older newpkg?  There's no reason to ever use the old ones. They're still runnable directly from their /share/pkg.X directories if needed.  Consensus - yes.  Done.
+4. (dennis) newpkg should be more structured and controlled in its releases.
+* notes in the newpkg github should be added for releases and announcements made to the Apps team & interns when a new version is released.
+5. (dennis) Potential new reporting approach. https://github.com/bu-rcs/PkgAutoTest/pull/10  
+* Looks great! The new csv file is very customizable to hold the metrics from each test.qsub.
+* Brian requests 3 new columns:   host that ran the test ($HOSTNAME), elapsed time for the test, and OS version.
+  OS version needs to be OS-agnostic (i.e. what if we test on Debian?) https://www.redswitches.com/blog/check-linux-version/ 
+6. TODO:
+* (brian) find_qsub.py takes an argument to check all /share/pkg.8 modules
+* (dennis) set up Nextflow to copy test dirs to Nextflow hash'd working directory. 
+* (brian) Email Mike and Aaron about the `rcstest` account with its `rcstest` project.
+
 ## February 6, 2024
 1. TO from last meeting:
 * (brian) find_qsub.py - updated CSV output (done)
