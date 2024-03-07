@@ -1,5 +1,18 @@
 # Notes from the project meetings
 
+## March 7, 2024
+1. TODO from last time:
+* (brian) find_qsub.py takes an argument to check all /share/pkg.8 modules (DONE!) See new arguments in find_qsub.py, also it now needs the `python3/3.10.12` module to be loaded.
+* (dennis) set up Nextflow to copy test dirs to Nextflow hash'd working directory.  (DONE (in pull request))
+* (brian) Email Mike and Aaron about the `rcstest` account with its `rcstest` project. (DONE.)
+  * we'll make an rcstest project but no special user account.
+2. rcstest project needs to be created & Apps team members added to it (brian).
+3. newpkg updates: add SCC_MODNAME_BASE, remove SCC_MODNAME_TEST & SCC_MODNAME_TESTDOC, don't touch SCC_MODNAME_DIR.
+4. Try the Nextflow pipeline on everything in /share/pkg.8 (dennis)
+* How long does it take to run? (tests run as concurrent separate jobs)
+* The total size of all test directories in /share/pkg.8 is ~15.5GB at present.
+5. Check with Charlie about the newpkg script - how much work would it be to insert a newpkg version number into the generated files (notes.txt, modulefile.lua, test.qsub)? Let's see how hard that is before deciding whether or not to do this. (dennis)
+
 ## February 27, 2024
 1. TODO from last time:
 *  (brian) find_qsub.py takes an argument to check all /share/pkg.8 modules/   (not done yet)
