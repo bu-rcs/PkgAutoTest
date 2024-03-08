@@ -82,6 +82,9 @@ def extract_qsub_opts(qsub_filename):
                 qsubs.append(line.split('$')[1].strip())
         # Remove the "-j y" flag if found.
         qsubs = filter(lambda x: not x.startswith('-j'),qsubs)
+        # And now filter out the -P flag. The project will be assigned 
+        # by the Nextflow pipeline.
+        qsubs = filter(lambda x: not x.startswith('-P'),qsubs)
         # Join the qsub commands into one line and return.
         return ' '.join(qsubs)
     
