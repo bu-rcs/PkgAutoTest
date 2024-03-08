@@ -4,6 +4,7 @@ params.executor = 'sge'  // Set the executor as 'sge' by default but can be chan
 params.errorStrategy = 'ignore' // "ignore"- will continue with other tests if there is an error
 			    // "terminate" - kill all tests when error is encountered
 params.qsub_path = ""
+params.project = ""  // Value to be used for the -P directive for qsub
 
 nextflow.enable.dsl=2
 
@@ -24,7 +25,7 @@ workflow {
 process runTests {
 
     beforeScript 'source $HOME/.bashrc' // To make module command available.
-    clusterOptions "$qsub_options" // Specify qsub options from CSV file
+    clusterOptions "-P ${params.project} -N nf_${module_name}_${version} ${qsub_options}" // Specify qsub options from CSV file
     executor params.executor
     errorStrategy params.errorStrategy  
     tag "$module_name_version" // Used for reporting.
@@ -40,7 +41,7 @@ process runTests {
     """
 
     ## PREP
-    TEST_RESULT=PASSED
+    TEST_RESULT=FAILED
     TEST_DIR=`dirname $test_path`
     QSUB_FILE=`basename $test_path`
     WORKDIR=`pwd`
@@ -56,22 +57,20 @@ process runTests {
 
     ## RUN MODULE TEST
     echo \$QSUB_FILE >> \$WORKDIR/log.txt
-    bash \$QSUB_FILE \$WORKDIR/log.txt 1>  \$WORKDIR/results.txt 
-    
+    EXIT_CODE=`bash \$QSUB_FILE \$WORKDIR/log.txt >  \$WORKDIR/results.txt; echo \$?`
 
     ## POST PROCESSING
     cd \$WORKDIR
 
-    EXIT_CODE=\$?
     PASSED=`grep -iow 'Passed' results.txt | wc -l`
     FAILED=`grep -iow 'Error' results.txt | wc -l`
     LOG_ERRORS=`grep -iow 'error' log.txt | wc -l`
 
     # Test result fails if words other than "Passed" are found in 
     # results.txt
-    if [ "\$(grep -c -v Passed results.txt)" -gt 0 ] || EXIT_CODE -ne 0 || LOG_ERRORS -gt 0
+    if [ "\$(grep -c -v Passed results.txt)" -eq 0 ] && [ \$EXIT_CODE -eq 0 ]
     then
-       TEST_RESULT=FAILED  
+       TEST_RESULT=PASSED  
     fi 
 
 
