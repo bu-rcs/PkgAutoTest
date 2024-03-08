@@ -31,18 +31,36 @@ process runTests {
     
 
     input:
-    tuple val(module_name), val(version), val(module_name_version), path(module_pkg_dir), val(module_installer), val(module_install_date), val(module_category), val( module_prereqs ), path(test_path), val(qsub_options)
+    tuple val(module_name), val(version), val(module_name_version), val(module_pkg_dir), val(module_installer), val(module_install_date), val(module_category), val( module_prereqs ), val(test_path), val(qsub_options)
 
     output:
     path 'test_metrics.csv'
      
     script:
     """
+
+    ## PREP
     TEST_RESULT=PASSED
+    TEST_DIR=`dirname $test_path`
+    QSUB_FILE=`basename $test_path`
+    WORKDIR=`pwd`
+
+    echo TEST_DIR=\$TEST_DIR
+    echo QSUB_FILE=\$QSUB_FILE
+    
+    ## COPY TEST DIRECTORY INTO workDIR
+    cp -r \$TEST_DIR .
+    cd \$TEST_DIR
     echo $NSLOTS $QUEUE
     echo     
-    echo $test_path >> log.txt
-    bash $test_path log.txt 1>  results.txt 
+
+    ## RUN MODULE TEST
+    echo \$QSUB_FILE >> \$WORKDIR/log.txt
+    bash \$QSUB_FILE \$WORKDIR/log.txt 1>  \$WORKDIR/results.txt 
+    
+
+    ## POST PROCESSING
+    cd \$WORKDIR
 
     EXIT_CODE=\$?
     PASSED=`grep -iow 'Passed' results.txt | wc -l`
