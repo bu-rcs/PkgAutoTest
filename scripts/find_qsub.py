@@ -9,6 +9,13 @@
 # openmpi,4.1.5,openmpi/4.1.5,/share/pkg.8,bgregor,06/27/23,libraries,prereqs;go;here,/share/pkg.8/openmpi/4.1.5/test/test.qsub,-P scv
 
 
+# Run example:
+#    Load a python module:
+#    module load python3/3.10.12
+#    python find_qsub.py -m openmpi out3.csv
+#    python find_qsub.py -d /share/pkg.8 out2.csv
+
+
 
 # TODO: make it work to find R code and other special cases
 # TODO: Add installer username to the csv file - process the notes.txt file.
@@ -21,7 +28,7 @@ import subprocess
 import os
 import sys
 import csv
-
+import tqdm
 
 # TODO: print output using logging module.
 import logging
@@ -31,6 +38,39 @@ import logging
 HEADERS=['module_name','version','module_name_version','module_pkg_dir',
          'module_installer','module_install_date','module_category',
          'module_prereqs','test_path','qsub_options']
+
+
+def get_modules_from_dir(directory):
+    ''' From a directory, search down 2 levels to find all module/version pairs.'''
+    modules = []
+    # Get subdirectory names, removing any files.
+    subdirs = list(filter(os.path.isdir,(os.path.join(directory, x) for x in os.listdir(directory))))
+    # Descend into those, getting each sub-directory name. Append those
+    # to the modules list combined with mod_names
+    for sub in subdirs:
+        ver_names = os.listdir(sub)
+        # Extract the module name from the subdirectory.
+        mod_name = os.path.basename(sub)
+        for vn in ver_names:
+            modules.append(f'{mod_name}/{vn}')
+    # modules is now a list of all possible modulename/version in this directory.
+    # Now for each of those call 'module avail' in the shell...check stderr for
+    # an error message. If the error message is found then that version isn't published.
+    pub_modules = []
+    # This can be MUCH faster if 'module -t modname' is called (no version)
+    # and then the modname/version is regex search'd in the resulting stderr.
+    print(f'Finding published modules in {directory}.')
+    for mod_name in tqdm.tqdm(modules):
+        cmd = f'module -t avail {mod_name}'     
+        result = subprocess.run([cmd], shell=True, stderr=subprocess.PIPE)
+        stderr = result.stderr.decode("utf-8")    
+        # with the -t flag nothing is returned if a module is not available.
+        if len(stderr) > 0:
+            # Published, keep it.
+            pub_modules.append(mod_name)
+    return pub_modules 
+
+
 
 def extract_qsub_opts(qsub_filename):
     ''' Extract all qsub parameters from the .qsub file '''
@@ -113,7 +153,8 @@ def find_test_qsub_params(mod_names):
     # TODO:  This is super long. Break down into sub-functions.
     #
     test_list = []
-    for mn in mod_names:
+    print('Generating data for the CSV.')
+    for mn in tqdm.tqdm(mod_names):
         cap_name = mn.split('/')[0].upper()
         cmd = f'module show {mn} |& xargs -0  echo'     
         result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE)
@@ -189,13 +230,27 @@ def save_csv(test_list, out_csv):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Find test.qsub files")
-    parser.add_argument("mod_name") 
-    parser.add_argument("out_csv")
+    parser.add_argument("-m","--mod",dest="mod_name", help="Name of a specific module to test.", default=None)
+    parser.add_argument("-d","--dir", dest="directory", 
+                        help="Directory to search for modules to test. This will find all available modules in that directory. Use paths like /share/pkg.8 or /share/pkg.7",
+                        default=None)
+    parser.add_argument("out_csv",help="output CSV file for use with Nextflow pipeline.")
     
     args = parser.parse_args()
+
+    if (not args.mod_name and not args.directory) or \
+       (args.mod_name and args.directory):
+        parser.print_help(sys.stderr)
+        exit(1)
     
-    mod_names = call_module_avail(args.mod_name)
+    mod_names = []
+    if args.directory:
+        mod_names = get_modules_from_dir(args.directory)
+    elif args.mod_name:        
+        mod_names = call_module_avail(args.mod_name)
+    
+    if not mod_names:
+        raise('something terrible has happened...no modules found.')
     test_list = find_test_qsub_params(mod_names)
-    
     save_csv(test_list, args.out_csv)
     
