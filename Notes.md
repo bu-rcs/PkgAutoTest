@@ -1,5 +1,20 @@
 # Notes from the project meetings
 
+## March 12, 2024
+1. TODO from last time:
+* request rcstest project (not done yet)
+* newpkg updated as a new release? (after Katia is back from vacation)
+2. Running Nextflow on /share/pkg.8
+  * find_qsub.py has some bugs in its output csv, needs fixing
+  * Dennis ran a repaired csv, wallclock time was ~1 hr. Some tests passed, some failed.
+  * Some bugs in Nextflow were found and fixed (to be checked in shortly).
+  * The nextflow test fails because Nextflow creates a .lock file and cannot execute another Nextflow instance. This just means the nextflow test.qsub's will have to be tested manually.
+  * Current work output directory is `/projectnb/scv/milechin/nf_pkg8`  Check the file report.csv. Note the installer column is not currently reliable due to the find_qsub.py.  A report.html has not yet been created.
+  * nextflow work directory is 15GB. 
+3. (brian) - fix find_qsub.py bugs. Yun suggests using /share/module.8 and following symlinks to get the directories of published modules. This will be faster & more reliable than searching /share/pkg.8 as is done now.
+
+
+
 ## March 7, 2024
 1. TODO from last time:
 * (brian) find_qsub.py takes an argument to check all /share/pkg.8 modules (DONE!) See new arguments in find_qsub.py, also it now needs the `python3/3.10.12` module to be loaded.
