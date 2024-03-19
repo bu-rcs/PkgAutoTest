@@ -1,5 +1,13 @@
 # Notes from the project meetings
 
+## March 19, 2024
+
+1. TODO from last time:
+* rcstest project requested.  Done, project is created, owned by Brian. Dennis, Andy, and Yun are added.
+* Katia needs to choose new variable for newpkg update
+* Fix find_qsub.py bugs (not yet)
+2. (dennis) check out find_qsub.py, try to fix bugs.
+
 ## March 12, 2024
 1. TODO from last time:
 * request rcstest project (not done yet)
