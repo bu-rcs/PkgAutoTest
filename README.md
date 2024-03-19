@@ -13,3 +13,8 @@ how to run
 ## Nextflow pipeline
 
 how to run
+
+
+## Examples
+
+examples - test all packages, test on one node, test on a particular queue
