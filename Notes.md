@@ -1,5 +1,12 @@
 # Notes from the project meetings
 
+## March 26, 2024
+1. newpkg - v0.2.1 release was created. Yun will create an SCC module and remove /share/module.8 links to old versions.
+2. find_qsub.py - existing design of the code is crummy. Brian is re-writing to use Python classes. This will re-use much of the existing code but will be much easier to debug and get working 100% correctly.
+3. report.csv pretty formatting - this was found quickly:  https://github.com/derekeder/csv-to-html-table   Seems nice, let's try it.
+4. (andy) - will look to see if there's a simple RShiny code that'll let you browse to a report.csv and display it.  This is easier to maintain for RCS than an html/css/javascript solution.
+
+
 ## March 19, 2024
 
 1. TODO from last time:
