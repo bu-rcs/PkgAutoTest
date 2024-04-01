@@ -4,7 +4,7 @@ params.executor = 'sge'  // Set the executor as 'sge' by default but can be chan
 params.errorStrategy = 'ignore' // "ignore"- will continue with other tests if there is an error
 			    // "terminate" - kill all tests when error is encountered
 params.qsub_path = ""
-params.project = ""  // Value to be used for the -P directive for qsub
+params.project = "rcstest"  // Value to be used for the -P directive for qsub
 
 nextflow.enable.dsl=2
 
@@ -76,7 +76,7 @@ process runTests {
 
     # Write the test result metrics to a csv file
     cat > test_metrics.csv << EOF
-    results,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
+    test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
     \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date,  \$PWD
     EOF
 
