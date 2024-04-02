@@ -1,5 +1,23 @@
 # Notes from the project meetings
 
+## April 2, 2024
+1. TO-DO from last time:
+* newpkg/0.2.1 is released to the SCC. Apps team was notified in the weekly meeting.
+* find_qsub.py: completely re-factored, now scans entire `/share/module.8` directory to find published modules, then filters down to `/share/pkg.8` ones (or other dir based on a command line argument). The ability to specify a single module for testing is currently missing but will be added shortly.  Support for test.qsub, test.gpu.qsub, test.mpi.qsub etc is included. 
+* Rshiny code - check for next time.
+2. move next week's meeting to Thursday.
+3. Dennis ran a Nextflow pipeline.
+* All jobs ran but the pipeline script stalled/hung at the command line.
+* Took 18 hours to complete, but the queue is very busy these days.
+* GUI jobs may be running for 12 hours and not terminating properly. Test: job 5845070, just runs Xvfb in the background. Runtime should be 1 second. Does this job for more?
+  * /projectnb/scv/bgregor/sandbox/xvfb - gui.qsub
+  * Just "Xvfb &" ran in 1 second before the job quit as expected.
+  * re-submitted, it will test "xeyes" with out usual timeout command. Job 5845119.
+4. Xvfb (GUI testing) jobs should have "killall Xvfb" at the end according to newpkg instructions, but many were written beforehand. find_qsub.py could detect that case and shorten the job time to 1 hour. Depends on the test (job 5845070). Or Nextflow could detect when Xvfb is used and set that in the pipeline. We should think about this.
+5. Dennis has a draft of instructions on running the Nextflow pipeline:  https://github.com/bu-rcs/PkgAutoTest/tree/develop
+* the README will be very detailed, a simple instruction doc like SCC_INSTRUCTIONS.md will be done when it's ready for the group.
+6. Target - week of May 5 for RCS App team release, provided Nextflow pipeline issue can be worked out before the end of next week. Main remaining work is find_qsub.py polishing and documentation.  We want this released before tutorials start at the end of May.
+
 ## March 26, 2024
 1. newpkg - v0.2.1 release was created. Yun will create an SCC module and remove /share/module.8 links to old versions.
 2. find_qsub.py - existing design of the code is crummy. Brian is re-writing to use Python classes. This will re-use much of the existing code but will be much easier to debug and get working 100% correctly.
