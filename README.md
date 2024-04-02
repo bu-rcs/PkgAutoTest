@@ -48,7 +48,7 @@ The command below will search `/share/module.8` directory for modules that are p
 find_qsub.py -d /share/module.8 module8_list.csv
 ```
 
-For each row, in the CSV input file, represents a single module found that has a test.qsub file.  The following are the column definitions for the generated CSV file:
+For each row, in the CSV input file, represents a single module found that has a test.qsub file. Variants of test.qsub are allowed with the pattern test.*.qsub, for example "test.gpu.qsub". If a test directory has more than one test.qsub-type file there will be a row for each in the CSV file.  The following are the column definitions for the generated CSV file:
 
 
 | Column Name          | Description |
@@ -64,7 +64,7 @@ For each row, in the CSV input file, represents a single module found that has a
 | test_path            | The the full path to the test.qsub file. |
 | qsub_options         | The qsub options specified in the test.qsub file.*  |
 
-*TODO: Indicate which qsub options are filtered out by `find_qsub.py`.
+*  `find_qsub.py` removes the `-j` and `-P` qsub arguments if they exist in test.qsub. 
 
 ## Step 2 - Nextflow pipeline
 
