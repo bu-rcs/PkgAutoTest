@@ -1,5 +1,19 @@
 # Notes from the project meetings
 
+## April 11, 2024
+1. TO-DO from last time:
+* Xvfb test jobs exited as expected. When run under Nextflow they run for 12 hours (i.e. job timeout). Does Nextflow have some sort of "wait for all processes to complete" behavior?
+* find_qsub.py - bring back single module testing - (brian) not done yet.
+* Dennis has a draft of instructions on running the Nextflow pipeline:  https://github.com/bu-rcs/PkgAutoTest/tree/develop
+2. Target - week of May 5 for RCS App team release, provided Nextflow pipeline issue can be worked out before the end of next week. Main remaining work is find_qsub.py polishing and documentation.  We want this released before tutorials start at the end of May.
+3. Andy - take the draft instructions for a test drive next week to see how it goes. The output of find_qsub.py can be cropped to the first 10 rows for expediency.
+  * Run from the /projectnb/rcstest directory
+  * Nextflow processes should all succeed even if some of the tests fail (we're interested in the nextflow pipeline, not the tests). 
+4. Outstanding items:  find_qsub.py module capability, documentation, nextflow debugging, and an Rshiny method to present the Nextflow report. 
+5. Andy looked into Rshiny presentation:  https://github.com/bu-rcs/PkgAutoTest/issues/15
+* Andy's "App-3" Rshiny app renders a table with row filters, drop downs, etc. based on the "mpg" dataset built into ggplot2. This is exactly what we had in mind. Nextflow can put a copy of the "app.R" Rshiny code in the same directory as its report.csv so the OnDemand Shiny server can open that directory and display the report.csv for a particular pipeline run.
+6. Meeting on April 16 is cancelled as Brian, Yun, and Dennis will be on vacation. Next meeting is April 23. 
+
 ## April 2, 2024
 1. TO-DO from last time:
 * newpkg/0.2.1 is released to the SCC. Apps team was notified in the weekly meeting.
