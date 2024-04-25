@@ -1,5 +1,11 @@
 # Notes from the project meetings
 
+## April 25, 2024
+1. Test of instructions for nextflow by Andy. See issue #16.
+2. Nextflow can be run with a "resume" flag, ex. `nextflow run <script> -resume`  This should let us run a short nextflow job to schedule everything, then go back later and re-run with -resume to finish the analysis of the test jobs.
+   * we'll need to test this.
+3. The nextflow wait issue with Xvfb may be due to the nextflow .command.run script. There may (should?) be some setting we can change that will keep Nextflow from waiting for all process id's in a job to exit before exiting the job. 
+
 ## April 11, 2024
 1. TO-DO from last time:
 * Xvfb test jobs exited as expected. When run under Nextflow they run for 12 hours (i.e. job timeout). Does Nextflow have some sort of "wait for all processes to complete" behavior?
