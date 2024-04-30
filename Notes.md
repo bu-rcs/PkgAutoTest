@@ -1,5 +1,18 @@
 # Notes from the project meetings
 
+## April 30, 2024
+1. Yun ran a complete test, see issue #17.
+* GUI processes are still running until the end of the job (12 hrs).
+* Easy to go from the report.csv to a directory for a job with the log.txt/results.txt files to investigate a failed job.
+2. (brian) - future feature request: add the runtime for each job to the report.csv.
+* this would take some time. As a quick fix adding the SGE job id for each job lets us look this up.
+3. Xvfb running for 12 hours, see issue #18.
+4. Remaining stuff:
+* find_qsub.py - bring back single module testing - (brian) not done yet.
+* Rshiny display
+* Xvfb fix
+* Documentation here plus short instructions on the software install wiki.
+
 ## April 25, 2024
 1. Test of instructions for nextflow by Andy. See issue #16.
 2. Nextflow can be run with a "resume" flag, ex. `nextflow run <script> -resume`  This should let us run a short nextflow job to schedule everything, then go back later and re-run with -resume to finish the analysis of the test jobs.
