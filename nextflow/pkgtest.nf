@@ -52,7 +52,7 @@ process runTests {
     cp -r \$TEST_DIR \$WORKDIR
 
     # CD INTO TEST DIRECTORY
-    cd \$TEST_DIR
+    cd `basename \$TEST_DIR`
 
     ## PRINT ENVIRONMENT VARIABLES ASSOCIATED WITH THE TEST
     echo MODULE=$module_name_version
@@ -63,8 +63,15 @@ process runTests {
     echo TEST_DIR=\$TEST_DIR
     echo QSUB_FILE=\$QSUB_FILE
     echo LOG=\$LOG
-    echo RESULTS=$RESULTS
+    echo RESULTS=\$RESULTS
     echo WORKDIR=\$WORKDIR
+    echo USER=\$USER
+
+    ## APPEND XVFB KILL COMMAND TO QSUB FILE (see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18)
+    echo '\n#### CODE BLOCK INSERTED BY NEXTFLOW ####' >> \$QSUB_FILE
+    echo '#### see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18' >> \$QSUB_FILE
+    echo 'pgrep -P \$\$ -f Xvfb | while read line ; do kill -9 \$line; done' >> \$QSUB_FILE
+    echo '#########################################' >> \$QSUB_FILE
 
     ## RUN MODULE TEST
     EXIT_CODE=`bash \$QSUB_FILE \$LOG >  \$RESULTS; echo \$?`
@@ -82,7 +89,7 @@ process runTests {
     LOG_ERRORS=`grep -iow 'error' log.txt | wc -l`
 
     # THE TEST PASSES IF ONLY WORDS "Passed" ARE FOUND
-    # IN results.txt AND THE $EXIT_CODE IS 0
+    # IN results.txt AND THE \$EXIT_CODE IS 0
     if [ "\$(grep -c -v Passed results.txt)" -eq 0 ] && [ \$EXIT_CODE -eq 0 ]
     then
        TEST_RESULT=PASSED  
@@ -90,10 +97,10 @@ process runTests {
 
 
     # WRITE THE TEST RESULT INFORMATION TO A CSV FILE
-    cat > test_metrics.csv << EOF
-    job_number, hostname, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
-    \$JOB_ID, \$HOSTNAME, \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date,  \$PWD
-    EOF
+cat > test_metrics.csv << EOF
+job_number, hostname, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
+\$JOB_ID, \$HOSTNAME, \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date, \$PWD
+EOF
 
     """
 }
