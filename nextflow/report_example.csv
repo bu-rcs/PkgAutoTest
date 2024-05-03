@@ -1,8 +1,8 @@
-results,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
-FAILED, gdal/3.1.2, 16, 3, 1, 0, milechin, gis, 04/26/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/de/b82158981e1103811fea0c689684d4
-PASSED, openmpi/4.1.5_intel-2023, 2, 0, 0, 0, bgregor, libraries, 06/16/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/67/2e4bed1d4f3ca09038f02368b4a2af
-PASSED, openmpi/4.1.5_nvidia-2023-23.5, 2, 0, 0, 0, bgregor, libraries, 09/19/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/c2/9ed978ba18425866a15d64a68b652a
-PASSED, openmpi/4.1.5_gnu-12.2.0, 2, 0, 0, 0, bgregor, libraries, 09/28/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/c8/80c58a6e393be939da4b602f8713bc
-PASSED, openmpi/4.1.5_intel-2024, 2, 0, 0, 0, bgregor, libraries, 12/21/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/b1/c9ad26f02f70fba0f44d80e3d6608a
-PASSED, openmpi/4.1.5, 2, 0, 0, 0, bgregor, libraries, 06/27/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/3e/c0ce4bacf7ba463a622ce9c1703bff
-FAILED, gdal/3.6.4, 15, 1, 0, 0, milechin, gis, 08/08/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/c4/210f71d29db177b7667e3fbaff503b
+job_number, hostname, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
+6988712, scc-aa1.scc.bu.edu, PASSED, openmpi/4.1.5_intel-2023, 2, 0, 0, 0, bgregor, libraries, 06/16/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/bc/7e989eb8e0d64e2fb92df7528399a3
+6988715, scc-tn3.scc.bu.edu, FAILED, gdal/3.6.4, 14, 0, 0, 1, milechin, gis, 08/08/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/d0/aa06913d53dde0b8450cea9f1c3769
+6988718, scc-mh4.scc.bu.edu, FAILED, gdal/3.1.2, 18, 1, 0, 1, milechin, gis, 04/26/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/aa/b8bf0d12dea8cef272e106c8ab6c8a
+6988717, scc-ad6.scc.bu.edu, PASSED, openmpi/4.1.5, 2, 0, 0, 0, bgregor, libraries, 06/27/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/f5/bd68b32081337f828d6c336343daf1
+6988714, scc-ac1.scc.bu.edu, PASSED, openmpi/4.1.5_nvidia-2023-23.5, 2, 0, 0, 0, bgregor, libraries, 09/19/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/c3/95dffbe21f094a49ec4a3f6b829c07
+6988716, scc-aa4.scc.bu.edu, PASSED, openmpi/4.1.5_gnu-12.2.0, 2, 0, 0, 0, bgregor, libraries, 09/28/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/88/8f93a7903694b4db4c2857a4dd7ab9
+6988713, scc-aa6.scc.bu.edu, PASSED, openmpi/4.1.5_intel-2024, 2, 0, 0, 0, bgregor, libraries, 12/21/23,  /projectnb/dvm-rcs/milechin/git/PkgAutoTest/nextflow/work/69/5f8df5c9ef726be8868e00a8baf10f
