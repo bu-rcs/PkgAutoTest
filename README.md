@@ -114,12 +114,13 @@ If a process failed, check the [Troubleshooting](#troubleshooting) section.  Oth
 
 ### Troubleshooting
 
-**Process(es) failed while running Nextflow pipeline.**
+**Nextflow Process(es) failed while running Nextflow pipeline.**
+
 This issues is most likely to occur when the scheduler has an issue with the qsub options being used by Nextflow.  Some modules require specific resources and some of those qsub options are extracted by the find_qsub.py script, which are saved under the column **qsub_options** in the resultant CSV file.  The following are some suggestions on ways to troubleshoot this issue.
 
-  * In the directory where the nextflow script ran, there should be a hidden file called `.nextflow.log`.  This will contain information about the nextflow pipeline and actions taken for each process.  In this file, search for the keyword "Error" to find which process (or modules) failed to start the test. Sometimes additional information is shown in these logs that may indicate what went wrong.
+  * In the directory where the nextflow script ran, there should be a hidden file called `.nextflow.log`.  This will contain information about the nextflow pipeline and actions taken for each process.  In this file, search for the keyword "Error" or "Failed" to find which process (or modules) failed to start the test. Sometimes additional information is shown in these logs that may indicate what went wrong.
 
-    Below is an example exerpt from a `.nextflow.log` file of a failed process start for testing module R/4.3.1.
+    Below is an example exerpt from a `.nextflow.log` file of a "Failed" job submission for module R/4.3.1 test.
 
     ```console
     ...
@@ -139,6 +140,10 @@ This issues is most likely to occur when the scheduler has an issue with the qsu
   ```console
 nextflow pkgtest.nf --csv_input module8_list.csv  --errorStrategy terminate
   ``` 
+
+**Nextflow Process(es) are running forever**
+  
+Use `qstat` to determine the job numbers of the stuck jobs.  The job name will contain the module name and version number.  Use `qdel job_number` to delete the job.  It may take Nextflow a couple minutes to determine the job was deleted.  Nextflow will most likely error this test and so the results will not be included in the report CSV file.
 
 ## Step 3 - Review the results
 When the Nextflow pipeline finishes, a CSV file containing the same name as the input CSV file, but with a "report_" prefix (e.g. report_module8_list.csv).  The following are the column definitions for the CSV report:
@@ -178,7 +183,7 @@ To examine the logs of a specific test, `cd` into the directory specified in the
 | test_metrics.csv                | The result of the test in a CSV format. |
 
 ## Examples
-
+TO DO:
 examples - test all packages, test on one node, test on a particular queue
 
 
