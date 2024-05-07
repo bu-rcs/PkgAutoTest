@@ -63,7 +63,7 @@ For each row, in the CSV input file, represents a single module found that has a
 | test_path            | The the full path to the test.qsub file. |
 | qsub_options         | The qsub options specified in the test.qsub file.*  |
 
-* `find_qsub.py` removes the `-j` and `-P` qsub arguments if they exist in test.qsub.
+* `find_qsub.py` removes the `-j`, `-P`, and `-N` qsub arguments if they exist in test.qsub.
 
 Before proceeding to step 1, check to see if an error txt file was created and examine it.  Any modules listed in the error file were not processed properly and are excluded from the CSV file.
 
