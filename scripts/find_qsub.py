@@ -251,7 +251,7 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
         pkg_path is an optional filter to only see links in a particular pkg install directory
         like '/share/pkg.8
         
-        only_module_name is a filter that returns only modules with that name.
+        only_module_name (a list) is a filter that returns only modules with that name.
     '''
     modules = []
     # Recursively search for symlinks to lua modulefiles.
@@ -277,9 +277,9 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
             continue
                 
         mod_name = os.path.basename(info[0])
-        # If mod_name is provided, only keep if mod_name is found.
-        if only_module_name:
-            if mod_name != only_module_name:
+        # If only_module_name is provided, only keep if one of the elements in only_module_name is found.
+        if only_module_name:    
+            if mod_name not in only_module_name:
                 continue
         # Filter the versions down to ones ending in .lua
         versions = filter(lambda x: os.path.splitext(x)[1]=='.lua', info[2])
@@ -314,9 +314,14 @@ def save_csv(test_list, out_csv):
         
 #%%
 
+class SplitArgs(argparse.Action):
+    ''' This is used to process comma-separated values in argparse.'''
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, [x.strip() for x in values.split(',')])
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Find test.qsub files")
-    parser.add_argument("-m","--mod",dest="mod_name", help="Name of a specific module to test.", default=None)
+    parser.add_argument("-m","--mod",dest="mod_name", help="Comma-separated names of specific module(s) to test.", default=None, action=SplitArgs)
     parser.add_argument("-d","--dir", dest="directory", 
                         help="Module publication directory to search for modules to test. This will find all available modules in that directory. Default is /share/module.8",
                         default="/share/module.8")
@@ -336,9 +341,6 @@ if __name__ == '__main__':
     mod_names = []
     if args.directory:
         mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path, only_module_name=args.mod_name)
-    elif args.mod_name:        
-        #mod_names = call_module_avail(args.mod_name)
-        raise Exception('Need to implement testing by module names')
     
     if not mod_names:
         raise('something terrible has happened...no modules found.')
