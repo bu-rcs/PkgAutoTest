@@ -155,7 +155,7 @@ class SccModule():
         pkg_path = os.path.dirname(os.path.dirname(mod_path))
         return mod_path, pkg_path
     
-    def extract_qsub_opts(self, qsub_file, ignore_flags=['-j', '-P']):
+    def extract_qsub_opts(self, qsub_file, ignore_flags=['-j', '-P', '-N']):
         ''' Extract all qsub parameters from the .qsub file. Ignore
             flags in the list ignore_flags '''
         with open(qsub_file) as f:

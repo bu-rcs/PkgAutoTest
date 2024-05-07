@@ -1,6 +1,2 @@
 module_name,version,module_name_version,module_pkg_dir,module_installer,module_install_date,module_category,module_prereqs,test_path,qsub_options
-openmpi,4.1.5_gnu-12.2.0,openmpi/4.1.5_gnu-12.2.0,/share/pkg.8/openmpi/4.1.5_gnu-12.2.0,bgregor,09/28/23,libraries,,/share/pkg.8/openmpi/4.1.5_gnu-12.2.0/test/test.qsub,-P scv -pe mpi_16_tasks_per_node 32
-openmpi,4.1.5_intel-2023,openmpi/4.1.5_intel-2023,/share/pkg.8/openmpi/4.1.5_intel-2023,bgregor,06/16/23,libraries,,/share/pkg.8/openmpi/4.1.5_intel-2023/test/test.qsub,-P scv -pe mpi_16_tasks_per_node 32
-openmpi,4.1.5_intel-2024,openmpi/4.1.5_intel-2024,/share/pkg.8/openmpi/4.1.5_intel-2024,bgregor,12/21/23,libraries,,/share/pkg.8/openmpi/4.1.5_intel-2024/test/test.qsub,-P scv -pe mpi_16_tasks_per_node 32
-openmpi,4.1.5_nvidia-2023-23.5,openmpi/4.1.5_nvidia-2023-23.5,/share/pkg.8/openmpi/4.1.5_nvidia-2023-23.5,bgregor,09/19/23,libraries,,/share/pkg.8/openmpi/4.1.5_nvidia-2023-23.5/test/test.qsub,-P scv -pe mpi_16_tasks_per_node 32
-openmpi,4.1.5,openmpi/4.1.5,/share/pkg.8/openmpi/4.1.5,bgregor,06/27/23,libraries,,/share/pkg.8/openmpi/4.1.5/test/test.qsub,-P scv -pe mpi_16_tasks_per_node 32
+gcc,11.2.0,gcc/11.2.0,/share/pkg.7,bgregor,10/26/21,programming,,/share/pkg.7/gcc/11.2.0/test/test.qsub,
