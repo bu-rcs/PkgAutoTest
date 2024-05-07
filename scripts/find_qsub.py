@@ -28,7 +28,6 @@ import subprocess
 import os
 import sys
 import csv
-import tqdm
 import glob 
 import pprint 
 import functools
@@ -241,7 +240,7 @@ class SccModule():
            
     
 #%%    
-def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools']):
+def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools'], only_module_name=None):
     ''' From a directory of publichsed modules (like /share/module.8), search down to find all module/version pairs.
         Find symlinks and use them to build modname/version strings, as this is how they are published.
         
@@ -251,6 +250,8 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
         
         pkg_path is an optional filter to only see links in a particular pkg install directory
         like '/share/pkg.8
+        
+        only_module_name is a filter that returns only modules with that name.
     '''
     modules = []
     # Recursively search for symlinks to lua modulefiles.
@@ -276,6 +277,10 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
             continue
                 
         mod_name = os.path.basename(info[0])
+        # If mod_name is provided, only keep if mod_name is found.
+        if only_module_name:
+            if mod_name != only_module_name:
+                continue
         # Filter the versions down to ones ending in .lua
         versions = filter(lambda x: os.path.splitext(x)[1]=='.lua', info[2])
         # Remove any versions here that is not a symlink.
@@ -313,16 +318,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser("Find test.qsub files")
     parser.add_argument("-m","--mod",dest="mod_name", help="Name of a specific module to test.", default=None)
     parser.add_argument("-d","--dir", dest="directory", 
-                        help="Module publication directory to search for modules to test. This will find all available modules in that directory. Use paths like /share/module.8",
-                        default=None ,required=True)
+                        help="Module publication directory to search for modules to test. This will find all available modules in that directory. Default is /share/module.8",
+                        default="/share/module.8")
     parser.add_argument("-p","--pkg", dest="pkg_path", default = '/share/pkg.8', help="Limit tests to a particular /share/pkg directory. Defaults to /share/pkg.8. Use ALL for modules found in any directory.")
     parser.add_argument("--err", dest='err_file', default="errors.log", help='File to write errors to. Defaults to errors.log. If there are no errors this file is not created.')
     parser.add_argument("out_csv",help="output CSV file for use with Nextflow pipeline.")
     
     args = parser.parse_args()
 
-    if (not args.mod_name and not args.directory) or \
-       (args.mod_name and args.directory):
+    if (not args.mod_name and not args.directory):
         parser.print_help(sys.stderr)
         exit(1)
 
@@ -331,7 +335,7 @@ if __name__ == '__main__':
     
     mod_names = []
     if args.directory:
-        mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path)
+        mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path, only_module_name=args.mod_name)
     elif args.mod_name:        
         #mod_names = call_module_avail(args.mod_name)
         raise Exception('Need to implement testing by module names')
@@ -346,7 +350,7 @@ if __name__ == '__main__':
     found_error = False
     err_file = args.err_file
     with open(err_file,'w') as erf:
-        for mn in tqdm.tqdm(mod_names):
+        for mn in mod_names:
             try: 
                 test_list.append(SccModule(mn))
             except Exception as e:
