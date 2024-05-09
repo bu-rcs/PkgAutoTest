@@ -2,28 +2,36 @@
 # the 'mpg' dataset.
 library(ggplot2)
 
+data <- read.csv("report_module8_list.csv")
+
 fluidPage(
+  
+  
   titlePanel("Basic DataTable"),
+  
+  mainPanel(
+    fileInput(inputId = "file", label = "Choose CSV File", accept = ".csv")
+  ),
 
   # Create a new Row in the UI for selectInputs
   fluidRow(
     column(4,
-        selectInput("man",
-                    "Manufacturer:",
+        selectInput("result",
+                    "Test Result:",
                     c("All",
-                      unique(as.character(mpg$manufacturer))))
+                      unique(as.character(data$test_result))))
+    ),
+    column(4,
+        selectInput("cat",
+                    "Category:",
+                    c("All",
+                      unique(as.character(data$category))))
     ),
     column(4,
         selectInput("trans",
-                    "Transmission:",
-                    c("All",
-                      unique(as.character(mpg$trans))))
-    ),
-    column(4,
-        selectInput("cyl",
                     "Cylinders:",
                     c("All",
-                      unique(as.character(mpg$cyl))))
+                      unique(as.character(mpg$trans))))
     )
   ),
   # Create a new row for the table.
