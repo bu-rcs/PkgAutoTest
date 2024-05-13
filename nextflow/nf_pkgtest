@@ -1,0 +1,11 @@
+#!/bin/bash -l
+
+#$ -P rcstest
+#$ -l h_rt=12:00:00
+#$ -N nf_pkgtest
+#$ -m eas
+
+module load nextflow
+module load pkgautotest/1.0
+
+nextflow $PKGTEST_SCRIPT --csv_input $1
