@@ -1,6 +1,6 @@
 # PkgAutoTest
 
-This repo contains a Nextflow pipeline and several scripts to perform automated testing of the SCC module software packages.
+This repo contains a [Nextflow](https://www.nextflow.io/docs/latest/index.html) pipeline and several scripts to perform automated testing of the SCC module software packages.
 
 ## Running the Pipeline
 
@@ -8,7 +8,8 @@ First one needs to get a copy of the scripts.  On the SCC load the `nextflow` an
 
 ```bash
 module load nextflow
-module load autopkgtest
+module use /share/module.8/rcstools
+module load pkgautotest
 ```
 
 Alternatively, you can clone the repository:
@@ -51,7 +52,7 @@ Here are two examples of how to use the script.
   find_qsub.py -m gdal gdal.csv
   ```
 
-For each row, in the CSV file, represents a single module found that has a test.qsub file. Variants of test.qsub are allowed with the pattern test.*.qsub.  For example "test.gpu.qsub". If a test directory has more than one test.qsub-type file there will be a row for each one in the CSV file.  
+For each row, in the CSV file, represents a single module found that has a `test.qsub` file. **Variants of `test.qsub` are allowed with the pattern `test.*.qsub`**.  For example, a test directory might have a `test.qsub` and a  `test.gpu.qsub` for tests that run on CPU and GPU nodes. A test directory might only contain a `test.mpi.qsub` to hint that the test will be running MPI-based software. If a test directory has more than one test.qsub-type file there will be a row for each one in the CSV file.  
 
 The following are the column definitions for the generated CSV file:
 
@@ -66,9 +67,7 @@ The following are the column definitions for the generated CSV file:
 | module_category      | The category for the module extracted from the modulefile.lua. |
 | module_prereqs       | The list of module pre-requisite extracted from the test.qsub file. |
 | test_path            | The the full path to the test.qsub file. |
-| qsub_options         | The qsub options specified in the test.qsub file.*  |
-
-* `find_qsub.py` removes the `-j`, `-P`, and `-N` qsub arguments if they exist in test.qsub.
+| qsub_options         | The qsub options specified in the test.qsub file. The `-j`, `-P`, and `-N` qsub arguments are removed if they exist in test.qsub.  |
 
 Before proceeding to step 1, check to see if an error txt file was created and examine it.  Any modules listed in the error file were not processed properly and are excluded from the CSV file.
 
@@ -138,7 +137,7 @@ The nextflow pipeline will read in the input CSV and for each row submit a job. 
 nextflow pkgtest.nf --csv_input module8_list.csv  --project scv
 ```
 
-One can also run all the tests on the host machine by setting the `--executor` flag to local:
+One can also run all the tests on the host machine by setting the `--executor` flag to local. This can be useful if you are testing a system that is not yet available in the queue:
 
 ```bash
 nextflow pkgtest.nf --csv_input module8_list.csv  --executor local
@@ -147,7 +146,7 @@ nextflow pkgtest.nf --csv_input module8_list.csv  --executor local
 Proceed to [Step 3](#step-3---review-the-results) to review the test results.
 
 ## Step 3 - Review the results
-When the Nextflow pipeline finishes, a CSV file containing the same name as the input CSV file, but with a "report_" prefix (e.g. report_module8_list.csv).  The following are the column definitions for the CSV report:
+When the Nextflow pipeline finishes, a CSV file containing the same name as the input CSV file, but with a "report_" prefix (e.g. report_module8_list.csv). Aside from your favorite text editor, on the SCC a spreadsheet tool is available with the `libreoffice` software. VSCode has a convenient built-in CSV display and there is a plugin ("Rainbow CSV") available to enhance CSV viewing. The following are the column definitions for the CSV report:
 
 | Column Name                      | Description |
 | -------------                    | ------------- |
@@ -164,7 +163,7 @@ When the Nextflow pipeline finishes, a CSV file containing the same name as the 
 | install_date                     | The installation date extracted from the notes.txt file for the module.  |
 | workdir                          | The Nextflow working directory that contains log files for the job.  |
 
-<sub>1</sup> A test passes if the following conditions are met:  
+A test passes if the following conditions are met:  
 
   1. "exit code" from running test.qsub is equal to 0.
   2. Only words "Passed" are found in the stdout when running test.qsub.
@@ -179,6 +178,7 @@ To examine the logs of a specific test, `cd` into the directory specified in the
 | .command.run                | The qsub script used to submit the job |
 | .command.sh                | The bash script Nextflow ran to setup the test and run the test. |
 | test                | This is the "test" directory for the module. Nextflow copied the original test directory for the module into this working directory.  Additional files may have been generated in this directory, depending how the `test.qsub` file was written. |
+| test/test.qsub         | This is a copy of the `test.qsub` file. There are a few lines added by Nextflow to facilitate running the test inside the pipeline but they do not have any effect on how the job executes. [#18](https://github.com/bu-rcs/PkgAutoTest/issues/18)|
 | log.txt                | The log file generated by running the `test.qsub` file. |
 | results.txt                | The file contains the standard output of the `test.qsub`, specifically the values of "Passed/Error".  This is used to determine if the module passed or failed the test. |
 | test_metrics.csv                | The result of the test in a CSV format. |
