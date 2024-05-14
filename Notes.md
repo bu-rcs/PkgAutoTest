@@ -1,5 +1,12 @@
 # Notes from the project meetings
 
+## May 14, 2024
+1. find_qsub.py - capability to add module versions is not quite implemented.
+2. Reviewed & edited README.md
+3. Dennis & Andy looked @ Rshiny.
+   * Did some work on getting this working.
+   * Need to figure out how to get Rshiny to select the right CSV.
+
 ## May 7, 2024
 1. find_qsub.py - single module testing is implemented. The module names can be comma separated:
    * `python3 find_qsub.py -m gcc tests.csv` OR `python3 find_qsub.py -m gcc,R tests.csv`
@@ -8,7 +15,7 @@
 2. Dennis added a section to `pkgtest.nf`. This tacks on a line of bash code to kill any instances of Xvfb launched by the job. This is to workaround the trapping of all user signals for Nextflow jobs which is built into Nextflow shell handling. This prevents Xvfb from running until the job terminates. Seems to work! Brian suggests removing the filter for Xvfb and just killing any child processes, this covers any case where the test might have put something into the background.  Issue #18.
 3. Dennis:  vscode is handy to view Nextflow results. Running `less` in its terminal makes directories in links, ctrl-click on them to see the directories.
 * demo'd - it works nicely.
-4. Review the README.  Needs an update fo rnew find_qsub.py help message, example nextflow qsub. Add section on running from /projectnb/rcstest.
+4. Review the README.  Needs an update fo new find_qsub.py help message, example nextflow qsub. Add section on running from /projectnb/rcstest.
 5. Goal for 5/14 meeting: do a 1.0 release and publish via /share/module.8/rcstools, then schedule an RCS app team meeting to show everyone how to run it. 
 
 ## April 30, 2024
