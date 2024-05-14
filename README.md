@@ -183,6 +183,11 @@ To examine the logs of a specific test, `cd` into the directory specified in the
 | results.txt                | The file contains the standard output of the `test.qsub`, specifically the values of "Passed/Error".  This is used to determine if the module passed or failed the test. |
 | test_metrics.csv                | The result of the test in a CSV format. |
 
+## Step 4 - Remove working directories
+
+Due to the copying of the module test directories to the working directories before tests are run a fair amount (several dozen GB) of disk space is consumed by the working directories. After reviewing the Nextflow results it is recommended that you delete at least the working directories from tests that have passed from the `/projectnb/rcstest` project.
+
+
 ### Troubleshooting
 
 **Nextflow Process(es) failed while running Nextflow pipeline.**
