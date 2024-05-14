@@ -1,7 +1,10 @@
 #!/bin/bash -l
 
 #$ -P rcstest
-#$ -l h_rt=12:00:00
+# This should be running for the entire duration
+# of the tests. This can be reduced on the qsub
+# command line if you want.
+#$ -l h_rt=48:00:00
 #$ -N nf_pkgtest
 #$ -m eas
 
