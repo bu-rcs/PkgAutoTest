@@ -7,7 +7,7 @@ or
 `find_qsub.py -m gcc/13.2.0,python3 out.csv`
 2. find_qsub.py - all /share/pkg.* directories are searched by default. A new "--no_exclude" flag has been added, when present the /share/module/test and rcstools directories are searched for modules with test directories.
 3. To do: Approve pull request to merge develop back into main, tag 1.0 release.
-
+4. To do: a test setup. Maybe something like a directory in the git repo of modules that will produce a known set of passes and fails for the nextflow pipeline.
 
 ## May 14, 2024
 1. find_qsub.py - capability to add module versions is not quite implemented.
