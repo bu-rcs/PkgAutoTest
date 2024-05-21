@@ -254,6 +254,21 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
         only_module_name (a list) is a filter that returns only modules with that name.
     '''
     modules = []
+    
+    # Remove any entries in only_module_name with a / as those refer to specific
+    # modules.
+    specific_modules = []
+    if only_module_name:
+        incoming = only_module_name.copy()
+        only_module_name = []
+        for i  in  incoming:
+            if i.find('/') >= 0:
+                specific_modules.append(i)
+                # Also add the module name to the other list.
+                only_module_name.append(i.split('/')[0])
+            else:
+                only_module_name.append(i)
+
     # Recursively search for symlinks to lua modulefiles.
     for info in os.walk(directory):
         # info is a tuple like:  ('/share/module.8/chemistry/berkeleygw', [], ['3.1.0.lua', '2.1.lua'])        
@@ -292,6 +307,22 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
     
     # By virtue of these being found in the published modules directory they are
     # assumed to be published!  Return the list of modname/version strings.
+    
+    # If specific module versions were requested, make sure only those are here
+    # so if gcc/13.2.0,python3 was requested all gcc ones would have been found,
+    # now remove any gcc mod_name/version that is not gcc/13.2.0
+    remove_modules = []
+    for specific in specific_modules:
+        smod, sver = specific.split('/')
+        for m in modules:
+            mod,ver = m.split('/')
+            if smod == mod:
+                # module name matched
+                # does the version match?
+                if not sver == ver:
+                    remove_modules.append(m)
+    # now prune the modules list:
+    modules = [m for m in modules if m not in remove_modules]
     return modules 
 #%%
 
@@ -343,7 +374,7 @@ if __name__ == '__main__':
         mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path, only_module_name=args.mod_name)
     
     if not mod_names:
-        raise('something terrible has happened...no modules found.')
+        print('No modules were found. Double check the module search directory.')
     
     # From the list of modulename/version strings, build a list of SccModule objects
     # with all of the test info.
