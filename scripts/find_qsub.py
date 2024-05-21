@@ -240,7 +240,7 @@ class SccModule():
            
     
 #%%    
-def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools'], only_module_name=None):
+def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools'], ignore_excludes=False, only_module_name=None):
     ''' From a directory of publichsed modules (like /share/module.8), search down to find all module/version pairs.
         Find symlinks and use them to build modname/version strings, as this is how they are published.
         
@@ -285,9 +285,10 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
             info = (info[0], info[1], filt_info2)
         # If the exclude_dirs have shown up, skip this one and carry on.
         skip = False
-        for ex in exclude_dirs:
-            if info[0].find('/'+ex) >= 0:
-                skip = True
+        if not ignore_excludes:
+            for ex in exclude_dirs:
+                if info[0].find('/'+ex) >= 0:
+                    skip = True
         if skip:
             continue
                 
@@ -352,11 +353,15 @@ class SplitArgs(argparse.Action):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Find test.qsub files")
-    parser.add_argument("-m","--mod",dest="mod_name", help="Comma-separated names of specific module(s) to test.", default=None, action=SplitArgs)
+    parser.add_argument("-m","--mod",dest="mod_name", help="Comma-separated names of specific module(s) to test.", 
+                        default=None, action=SplitArgs)
     parser.add_argument("-d","--dir", dest="directory", 
                         help="Module publication directory to search for modules to test. This will find all available modules in that directory. Default is /share/module.8",
                         default="/share/module.8")
-    parser.add_argument("-p","--pkg", dest="pkg_path", default = '/share/pkg.8', help="Limit tests to a particular /share/pkg directory. Defaults to /share/pkg.8. Use ALL for modules found in any directory.")
+    parser.add_argument("-p","--pkg", dest="pkg_path", default = 'ALL', 
+                        help="Limit tests to a particular /share/pkg directory. Defaults to the value ALL, which means any /share/pkg directory used by a module.")
+    parser.add_argument("--no_exclude",dest='nox', action="store_true", default=False, 
+                        help="Normally the test and rcstools directories are excluded in /share/module. This removes the exclusion")
     parser.add_argument("--err", dest='err_file', default="errors.log", help='File to write errors to. Defaults to errors.log. If there are no errors this file is not created.')
     parser.add_argument("out_csv",help="output CSV file for use with Nextflow pipeline.")
     
@@ -371,7 +376,8 @@ if __name__ == '__main__':
     
     mod_names = []
     if args.directory:
-        mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path, only_module_name=args.mod_name)
+        mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path, 
+        ignore_excludes=args.nox, only_module_name=args.mod_name)
     
     if not mod_names:
         print('No modules were found. Double check the module search directory.')
