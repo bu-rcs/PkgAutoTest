@@ -1,5 +1,14 @@
 # Notes from the project meetings
 
+## May 21, 2024
+1. find_qsub.py - can now specify a module:
+`find_qsub.py -m gcc/13.2.0 out.csv`
+or 
+`find_qsub.py -m gcc/13.2.0,python3 out.csv`
+2. find_qsub.py - all /share/pkg.* directories are searched by default. A new "--no_exclude" flag has been added, when present the /share/module/test and rcstools directories are searched for modules with test directories.
+3. To do: Approve pull request to merge develop back into main, tag 1.0 release.
+
+
 ## May 14, 2024
 1. find_qsub.py - capability to add module versions is not quite implemented.
 2. Reviewed & edited README.md
