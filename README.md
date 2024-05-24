@@ -200,11 +200,17 @@ Due to the copying of the module test directories to the working directories bef
 
 **Nextflow Process(es) failed while running Nextflow pipeline.**
 
-This issues is most likely to occur when the scheduler has an issue with the qsub options being used by Nextflow.  Some modules require specific resources and some of those qsub options are extracted by the find_qsub.py script, which are saved under the column **qsub_options** in the resultant CSV file.  The following are some suggestions on ways to troubleshoot this issue.
+The cause of a failed process could be one of the following:
 
-- **OPTION 1:** In the directory where the nextflow script ran, there should be a hidden file called `.nextflow.log`.  This will contain information about the nextflow pipeline and actions taken for each process.  In this file, search for the keyword "Error" or "Failed" to find which process (or modules) failed to start the test. Sometimes additional information is shown in these logs that may indicate what went wrong.
+- A bad qsub option passed from CSV `qsub_options` column.
+- The job was terminated (e.g  by the process reaper.)
+- The job was deleted with the use of `qdel` command.
 
-  Below is an example exerpt from a `.nextflow.log` file of a "Failed" job submission for module R/4.3.1 test.
+The following are some suggestions on ways to troubleshoot this issue.
+
+- **OPTION 1:** In the directory where the nextflow script ran, there should be a hidden file called `.nextflow.log`.  This will contain information about the nextflow pipeline and actions taken for each process.  In this file, search for the keyword "Error", "Failed", or "Terminated" to find which process (or modules) failed. Sometimes additional information is shown in these logs that may indicate what went wrong.
+
+  **Bad qsub options.** Below is an example exerpt from a `.nextflow.log` file of a "Failed" job submission for module R/4.3.1 test.
 
     ```console
     ...
@@ -215,7 +221,28 @@ This issues is most likely to occur when the scheduler has an issue with the qsu
 
     Notice that in this example it indicates "qsub: Unknown option" as the issue.  `cd` into the `workDir` defined in the error message and examine the hidden file `.command.run`.  This is the qsub script submited to the scheduler.  Examine the qsub options and make sure all of them are defined properly.  If any are not correct, check the `qsub_options` column in the input CSV file to make sure those are extracted properly from the original test.qsub file.
 
-- **OPTION 2:** If you are able to identify the hash code for the process, such as `9f/7758d6`, then you can navigate to the working directory of that process.  In the directory where you ran the Nextflow script, there is a `work` directory.  `cd` into the `work` directory.  This directory will contain  2 character named directories.  `cd` into the directory that matches the hash code for the module test.  For our example it is `9f`.  Within this directory will be additional directories with longer hash values.  `cd` into the directory that matches the starting of the hash of interest.  For our example it is `7758d6...`.  
+    **Killed by process reaper.** Here is an example of a message you might see if the job was terminated by the process reaper:
+
+    ```console
+    May-24 10:44:44.297 [Task monitor] INFO  nextflow.processor.TaskProcessor - [a4/013f3d] NOTE: Process `runTests (juicer/1.6-gpu)` terminated for an unknown reason -- Likely it has been terminated by the external system -- Error is ignored
+    ```
+
+    **Killed by `qdel`**. Here is an example message for a job killed by `qdel`:
+
+    ```console
+    May-24 11:18:59.366 [Task monitor] INFO  nextflow.processor.TaskProcessor - [8e/b4bded] NOTE: Process `runTests (grass/7.8.3)` terminated with an error exit status (140) -- Error is ignored
+    ```
+
+    **Issue with test.qsub**.  In this example a file access permission issue was encounterd while running `test.qsub`, which returned an exit code of `1`. This is the example message recorded in the log:
+
+    ```console
+    May-24 10:23:54.217 [Task monitor] INFO  nextflow.processor.TaskProcessor - [9c/87835e] NOTE: Process `runTests (python3/3.8.16)` terminated with an error exit status (1) -- Error is ignored
+    ```
+
+    For this situation, check the `.command.log` file in the working directory of this process.
+    
+
+- **OPTION 2:** If you are able to identify the hash code for the process, such as `9f/7758d6`, then navigate to the working directory of that process.  In the directory where you ran the Nextflow script, there is a `work` directory.  `cd` into the `work` directory.  This directory will contain  2 character named directories.  `cd` into the directory that matches the hash code for the module test.  For our example it is `9f`.  Within this directory will be additional directories with longer hash values.  `cd` into the directory that matches the starting of the hash of interest.  For our example it is `7758d6...`.  
 
     Now you are in the working directory of the module.  Run `ls -la` to see the hidden files.  Examine the log files to search for any error messages that may indicate what went wrong.
 
