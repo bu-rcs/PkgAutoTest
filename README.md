@@ -36,7 +36,7 @@ find_qsub.py -h
 
 Here are two examples of how to use the script.
 
-- **Find all module tests in `/share/pkg.8`**
+- **Find all module tests`**
 
   The following command will search for published modules that have a `tests` directory and generate a CSV file called `module_list.csv`, which will contain the results of the search.
 
@@ -114,7 +114,7 @@ N E X T F L O W  ~  version 21.10.6
 Launching `pkgtest.nf` [golden_turing] - revision: ed8e93e871
 executor >  sge (167)
 [9f/7758d6] process > runTests (fmriprep/23.1.4) [100%] 167 of 167 \ufffd\ufffd\ufffd
-./report_module8_list.csv
+./report_module_list.csv
 Completed at: 03-May-2024 10:22:55
 Duration    : 1h 2m 56s
 CPU hours   : 3.4
@@ -136,13 +136,13 @@ If you are using the SCC `pkgautotest` module, the environment variable `$PKGTES
 ```bash
 module load nextflow
 module load autopkgtest
-nextflow $PKGTEST_SCRIPT --csv_input module8_list.csv
+nextflow $PKGTEST_SCRIPT --csv_input module_list.csv
 ```
 
 The nextflow pipeline will read in the input CSV and for each row submit a job.  By default the jobs will be submited under project "rcstest".  If another project is desired, add the ``--project`` flag with the name of the project.
 
 ```bash
-nextflow pkgtest.nf --csv_input module8_list.csv  --project scv
+nextflow pkgtest.nf --csv_input module_list.csv  --project scv
 ```
 
 One can also run all the tests on the host machine by setting the `--executor` flag to local. This can be useful if you are testing a system that is not yet available in the queue:
@@ -154,7 +154,7 @@ nextflow pkgtest.nf --csv_input module_list.csv  --executor local
 Proceed to [Step 3](#step-3---review-the-results) to review the test results.
 
 ## Step 3 - Review the results
-When the Nextflow pipeline finishes, a CSV file containing the same name as the input CSV file, but with a "report_" prefix (e.g. report_module8_list.csv). Aside from your favorite text editor, on the SCC a spreadsheet tool is available with the `libreoffice` software. VSCode has a convenient built-in CSV display and there is a plugin ("Rainbow CSV") available to enhance CSV viewing. The following are the column definitions for the CSV report:
+When the Nextflow pipeline finishes, a CSV file containing the same name as the input CSV file, but with a "report_" prefix (e.g. report_module_list.csv). Aside from your favorite text editor, on the SCC a spreadsheet tool is available with the `libreoffice` software. VSCode has a convenient built-in CSV display and there is a plugin ("Rainbow CSV") available to enhance CSV viewing. The following are the column definitions for the CSV report:
 
 | Column Name                      | Description |
 | -------------                    | ------------- |
@@ -222,7 +222,7 @@ This issues is most likely to occur when the scheduler has an issue with the qsu
 - **OPTION 3:** By default this Nextflow script will ignore Failed processes and continue to the next one.  This option can be disabled and the additional benefit is one will get additional information about the issue.  To terminate Nextflow upon error, add the `errorStrategy` flag, like in the example below:
 
   ```console
-  nextflow pkgtest.nf --csv_input module8_list.csv  --errorStrategy terminate
+  nextflow pkgtest.nf --csv_input module_list.csv  --errorStrategy terminate
   ``` 
 
 **Nextflow Process(es) are running forever**
