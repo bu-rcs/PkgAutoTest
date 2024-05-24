@@ -38,18 +38,26 @@ Here are two examples of how to use the script.
 
 - **Find all module tests in `/share/pkg.8`**
 
-  The following command will search published modules in `/share/pkg.8` for available tests and generate a CSV file called `module8_list.csv`, which will contain the results of the search.
+  The following command will search for published modules that have a `tests` directory and generate a CSV file called `module_list.csv`, which will contain the results of the search.
 
   ```bash
-  find_qsub.py module8_list.csv
+  find_qsub.py module_list.csv
   ```
 
-- **Find all module tests for a specific module**
+- **Find all module tests for a specific module name**
 
-  The command below will search published modules in `/share/pkg.8` for named "gdal" and generate a summary CSV file called `gdal.csv`.
+  The command below will search published modules with the name "gdal" and generate a summary CSV file called `gdal.csv`.
 
   ```bash
   find_qsub.py -m gdal gdal.csv
+  ```
+
+- **Find all module tests for a specific module version**
+
+  The command below will search published module `gdal/3.8.4` and generate a summary CSV file called `gdal3.8.4.csv`.
+
+  ```bash
+  find_qsub.py -m gdal/3.8.4 gdal3.8.4.csv
   ```
 
 For each row, in the CSV file, represents a single module found that has a `test.qsub` file. **Variants of `test.qsub` are allowed with the pattern `test.*.qsub`**.  For example, a test directory might have a `test.qsub` and a  `test.gpu.qsub` for tests that run on CPU and GPU nodes. A test directory might only contain a `test.mpi.qsub` to hint that the test will be running MPI-based software. If a test directory has more than one test.qsub-type file there will be a row for each one in the CSV file.  
@@ -81,10 +89,10 @@ To run the Nextflow pipeline the Nextflow software is required.  On the SCC make
 module load nextflow
 ```
 
-When using the SCC `pkgautotest` module, run the `nf_pkgtest` command and specify the CSV file generated in [Step 1](#step-1---run-find_qsubpy) as the first argument. In this example we specify `module8_list.csv` as the CSV file.
+When using the SCC `pkgautotest` module, run the `nf_pkgtest` command and specify the CSV file generated in [Step 1](#step-1---run-find_qsubpy) as the first argument. In this example we specify `module_list.csv` as the CSV file.
 
 ``` bash
-nf_pkgtest module8_list.csv
+nf_pkgtest module_list.csv
 ```
 
 This script will launch Nextflow pipeline and will use the CSV file to determine which modules to test. Each module test will be submitted as a job and by default will use `rcstest` project.  See [Advanced section](#advanced) to see how to change the project name.
@@ -92,7 +100,7 @@ This script will launch Nextflow pipeline and will use the CSV file to determine
 Here is an example of submitting the pipeline as a batch job:
 
 ``` bash
-qsub nf_pkgtest module8_list.csv
+qsub nf_pkgtest module_list.csv
 ```
 
 
@@ -101,7 +109,7 @@ When Nextflow is done, an indication of a successful run is when all the process
 In the example below, 167 of 167 processes were submitted and in the console, the Nextflow summary indicates 167 succeeded.  This indicates the Nextflow pipeline ran successfully.
 
 ```console
-[scc ]$ nextflow pkgtest.nf --csv_input module8_list.csv 
+[scc ]$ nextflow pkgtest.nf --csv_input module_list.csv 
 N E X T F L O W  ~  version 21.10.6
 Launching `pkgtest.nf` [golden_turing] - revision: ed8e93e871
 executor >  sge (167)
@@ -120,7 +128,7 @@ If a process failed, check the [Troubleshooting](#troubleshooting) section.  Oth
 To run the pipeline, type in the `nextflow` command along with the name of the nextflow script, `pkgtest.nf`.  Additionally, include the `--csv_input` flag and include the name of the CSV input file generated in [Step 1](#step-1---run-find_qsubpy).
 
 ```bash
-nextflow pkgtest.nf --csv_input module8_list.csv
+nextflow pkgtest.nf --csv_input module_list.csv
 ```
 
 If you are using the SCC `pkgautotest` module, the environment variable `$PKGTEST_SCRIPT` will contain the path to the `pkgtest.nf` script, which can be used to run the pipeline:
@@ -140,7 +148,7 @@ nextflow pkgtest.nf --csv_input module8_list.csv  --project scv
 One can also run all the tests on the host machine by setting the `--executor` flag to local. This can be useful if you are testing a system that is not yet available in the queue:
 
 ```bash
-nextflow pkgtest.nf --csv_input module8_list.csv  --executor local
+nextflow pkgtest.nf --csv_input module_list.csv  --executor local
 ```
 
 Proceed to [Step 3](#step-3---review-the-results) to review the test results.
