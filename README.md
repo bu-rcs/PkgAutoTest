@@ -151,7 +151,13 @@ One can also run all the tests on the host machine by setting the `--executor` f
 nextflow pkgtest.nf --csv_input module_list.csv  --executor local
 ```
 
-Proceed to [Step 3](#step-3---review-the-results) to review the test results.
+If a process failed, check the [Troubleshooting](#troubleshooting) section, otherwise proceed to [Step 3](#step-3---review-the-results) to review the test results.
+
+NOTE: You can resume a Nextflow process if it terminated early, so one does not lose all the progress.  This can be done by adding a [`-resume`](https://training.nextflow.io/basic_training/cache_and_resume/) flag to the command. This will use the cached results from the last Nextflow run and resume from the last successful process.
+
+```console
+nextflow pkgtest.nf --csv_input module_list.csv -resume
+```
 
 ## Step 3 - Review the results
 When the Nextflow pipeline finishes, a CSV file containing the same name as the input CSV file, but with a "report_" prefix (e.g. report_module_list.csv). Aside from your favorite text editor, on the SCC a spreadsheet tool is available with the `libreoffice` software. VSCode has a convenient built-in CSV display and there is a plugin ("Rainbow CSV") available to enhance CSV viewing. The following are the column definitions for the CSV report:
@@ -233,14 +239,14 @@ The following are some suggestions on ways to troubleshoot this issue.
     May-24 11:18:59.366 [Task monitor] INFO  nextflow.processor.TaskProcessor - [8e/b4bded] NOTE: Process `runTests (grass/7.8.3)` terminated with an error exit status (140) -- Error is ignored
     ```
 
-    **Issue with test.qsub**.  In this example a file access permission issue was encounterd when copying the `test` directory into Nextflow's working directory. This is the example message recorded in the log:
+    **File permission issue**.  In this example a file access permission issue was encounterd when copying the `test` directory into Nextflow's working directory. This is an example message recorded in the log when this error occured:
 
     ```console
     May-24 10:23:54.217 [Task monitor] INFO  nextflow.processor.TaskProcessor - [9c/87835e] NOTE: Process `runTests (python3/3.8.16)` terminated with an error exit status (1) -- Error is ignored
     ```
 
     For this situation, check the `.command.log` file in the working directory of this process to determine the issue.
-    
+
 
 - **OPTION 2:** If you are able to identify the hash code for the process, such as `9f/7758d6`, then navigate to the working directory of that process.  In the directory where you ran the Nextflow script, there is a `work` directory.  `cd` into the `work` directory.  This directory will contain  2 character named directories.  `cd` into the directory that matches the hash code for the module test.  For our example it is `9f`.  Within this directory will be additional directories with longer hash values.  `cd` into the directory that matches the starting of the hash of interest.  For our example it is `7758d6...`.  
 
