@@ -233,13 +233,13 @@ The following are some suggestions on ways to troubleshoot this issue.
     May-24 11:18:59.366 [Task monitor] INFO  nextflow.processor.TaskProcessor - [8e/b4bded] NOTE: Process `runTests (grass/7.8.3)` terminated with an error exit status (140) -- Error is ignored
     ```
 
-    **Issue with test.qsub**.  In this example a file access permission issue was encounterd while running `test.qsub`, which returned an exit code of `1`. This is the example message recorded in the log:
+    **Issue with test.qsub**.  In this example a file access permission issue was encounterd when copying the `test` directory into Nextflow's working directory. This is the example message recorded in the log:
 
     ```console
     May-24 10:23:54.217 [Task monitor] INFO  nextflow.processor.TaskProcessor - [9c/87835e] NOTE: Process `runTests (python3/3.8.16)` terminated with an error exit status (1) -- Error is ignored
     ```
 
-    For this situation, check the `.command.log` file in the working directory of this process.
+    For this situation, check the `.command.log` file in the working directory of this process to determine the issue.
     
 
 - **OPTION 2:** If you are able to identify the hash code for the process, such as `9f/7758d6`, then navigate to the working directory of that process.  In the directory where you ran the Nextflow script, there is a `work` directory.  `cd` into the `work` directory.  This directory will contain  2 character named directories.  `cd` into the directory that matches the hash code for the module test.  For our example it is `9f`.  Within this directory will be additional directories with longer hash values.  `cd` into the directory that matches the starting of the hash of interest.  For our example it is `7758d6...`.  
