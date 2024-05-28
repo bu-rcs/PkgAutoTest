@@ -4,7 +4,7 @@ params.executor = 'sge'  // Set the executor as 'sge' by default but can be chan
 params.errorStrategy = 'ignore' // "ignore"- will continue with other tests if there is an error
 			    // "terminate" - kill all tests when error is encountered
 params.qsub_path = ""
-params.project = ""  // Value to be used for the -P directive for qsub
+params.project = "rcstest"  // Value to be used for the -P directive for qsub
 
 nextflow.enable.dsl=2
 
@@ -40,45 +40,67 @@ process runTests {
     script:
     """
 
-    ## PREP
-    TEST_RESULT=FAILED
-    TEST_DIR=`dirname $test_path`
-    QSUB_FILE=`basename $test_path`
-    WORKDIR=`pwd`
+    ## INITIALIZE ENVIRONMENT VARIABLES
+    TEST_RESULT=FAILED                  # INITIATE AS FAILED. UPDATED WHEN TEST IS PASSED
+    TEST_DIR=`dirname $test_path`       # PATH TO THE TEST DIRECTORY FROM INPUT CSV
+    QSUB_FILE=`basename $test_path`     # PATH TO QSUB FILE FROM INPUT CSV
+    WORKDIR=`pwd`                       # THE BASE WORKING DIRECTORY FOR THIS PROCESS
+    LOG=\$WORKDIR/log.txt               # LOG FILE USED FOR QSUB ARGUMENT
+    RESULTS=\$WORKDIR/results.txt       # TEXT FILE WHERE RESULTS OF A TEST ARE STORED.
+    
+    ## COPY TEST DIRECTORY INTO WORK DIRECTORY 
+    cp -r \$TEST_DIR \$WORKDIR
 
+    # CD INTO TEST DIRECTORY
+    cd `basename \$TEST_DIR`
+
+    ## PRINT ENVIRONMENT VARIABLES ASSOCIATED WITH THE TEST
+    echo MODULE=$module_name_version
+    echo NSLOTS=\$NSLOTS 
+    echo QUEUE=\$QUEUE
+    echo HOSTNAME=\$HOSTNAME
+    echo JOB_ID=\$JOB_ID
     echo TEST_DIR=\$TEST_DIR
     echo QSUB_FILE=\$QSUB_FILE
-    
-    ## COPY TEST DIRECTORY INTO workDIR
-    cp -r \$TEST_DIR .
-    cd \$TEST_DIR
-    echo $NSLOTS $QUEUE
-    echo     
+    echo LOG=\$LOG
+    echo RESULTS=\$RESULTS
+    echo WORKDIR=\$WORKDIR
+    echo USER=\$USER
+
+    ## APPEND XVFB KILL COMMAND TO QSUB FILE (see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18)
+    echo '\n#### CODE BLOCK INSERTED BY NEXTFLOW ####' >> \$QSUB_FILE
+    echo '#### see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18' >> \$QSUB_FILE
+    echo 'pgrep -P \$\$ -f Xvfb | while read line ; do kill -9 \$line; done' >> \$QSUB_FILE
+    echo '#########################################' >> \$QSUB_FILE
 
     ## RUN MODULE TEST
-    echo \$QSUB_FILE >> \$WORKDIR/log.txt
-    EXIT_CODE=`bash \$QSUB_FILE \$WORKDIR/log.txt >  \$WORKDIR/results.txt; echo \$?`
+    EXIT_CODE=`bash \$QSUB_FILE \$LOG >  \$RESULTS; echo \$?`
 
     ## POST PROCESSING
     cd \$WORKDIR
 
+    # GET COUNT OF 'Passed' KEYWORD IN THE results.txt
     PASSED=`grep -iow 'Passed' results.txt | wc -l`
+
+    # GET COUNT OF 'Error' KEYWORD IN THE results.txt
     FAILED=`grep -iow 'Error' results.txt | wc -l`
+
+    # GET COUNT OF 'error' KEYWORD IN THE log.txt
     LOG_ERRORS=`grep -iow 'error' log.txt | wc -l`
 
-    # Test result fails if words other than "Passed" are found in 
-    # results.txt
+    # THE TEST PASSES IF ONLY WORDS "Passed" ARE FOUND
+    # IN results.txt AND THE \$EXIT_CODE IS 0
     if [ "\$(grep -c -v Passed results.txt)" -eq 0 ] && [ \$EXIT_CODE -eq 0 ]
     then
        TEST_RESULT=PASSED  
     fi 
 
 
-    # Write the test result metrics to a csv file
-    cat > test_metrics.csv << EOF
-    results,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
-    \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date,  \$PWD
-    EOF
+    # WRITE THE TEST RESULT INFORMATION TO A CSV FILE
+cat > test_metrics.csv << EOF
+job_number, hostname, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
+\$JOB_ID, \$HOSTNAME, \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date, \$PWD
+EOF
 
     """
 }

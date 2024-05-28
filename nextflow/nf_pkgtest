@@ -1,0 +1,14 @@
+#!/bin/bash -l
+
+#$ -P rcstest
+# This should be running for the entire duration
+# of the tests. This can be reduced on the qsub
+# command line if you want.
+#$ -l h_rt=48:00:00
+#$ -N nf_pkgtest
+#$ -m eas
+
+module load nextflow
+module load pkgautotest/1.0
+
+nextflow $PKGTEST_SCRIPT --csv_input $1

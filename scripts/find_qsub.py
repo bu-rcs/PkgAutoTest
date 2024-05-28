@@ -28,7 +28,6 @@ import subprocess
 import os
 import sys
 import csv
-import tqdm
 import glob 
 import pprint 
 import functools
@@ -156,7 +155,7 @@ class SccModule():
         pkg_path = os.path.dirname(os.path.dirname(mod_path))
         return mod_path, pkg_path
     
-    def extract_qsub_opts(self, qsub_file, ignore_flags=['-j', '-P']):
+    def extract_qsub_opts(self, qsub_file, ignore_flags=['-j', '-P', '-N']):
         ''' Extract all qsub parameters from the .qsub file. Ignore
             flags in the list ignore_flags '''
         with open(qsub_file) as f:
@@ -241,7 +240,7 @@ class SccModule():
            
     
 #%%    
-def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools']):
+def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools'], ignore_excludes=False, only_module_name=None):
     ''' From a directory of publichsed modules (like /share/module.8), search down to find all module/version pairs.
         Find symlinks and use them to build modname/version strings, as this is how they are published.
         
@@ -251,8 +250,25 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
         
         pkg_path is an optional filter to only see links in a particular pkg install directory
         like '/share/pkg.8
+        
+        only_module_name (a list) is a filter that returns only modules with that name.
     '''
     modules = []
+    
+    # Remove any entries in only_module_name with a / as those refer to specific
+    # modules.
+    specific_modules = []
+    if only_module_name:
+        incoming = only_module_name.copy()
+        only_module_name = []
+        for i  in  incoming:
+            if i.find('/') >= 0:
+                specific_modules.append(i)
+                # Also add the module name to the other list.
+                only_module_name.append(i.split('/')[0])
+            else:
+                only_module_name.append(i)
+
     # Recursively search for symlinks to lua modulefiles.
     for info in os.walk(directory):
         # info is a tuple like:  ('/share/module.8/chemistry/berkeleygw', [], ['3.1.0.lua', '2.1.lua'])        
@@ -269,13 +285,18 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
             info = (info[0], info[1], filt_info2)
         # If the exclude_dirs have shown up, skip this one and carry on.
         skip = False
-        for ex in exclude_dirs:
-            if info[0].find('/'+ex) >= 0:
-                skip = True
+        if not ignore_excludes:
+            for ex in exclude_dirs:
+                if info[0].find('/'+ex) >= 0:
+                    skip = True
         if skip:
             continue
                 
         mod_name = os.path.basename(info[0])
+        # If only_module_name is provided, only keep if one of the elements in only_module_name is found.
+        if only_module_name:    
+            if mod_name not in only_module_name:
+                continue
         # Filter the versions down to ones ending in .lua
         versions = filter(lambda x: os.path.splitext(x)[1]=='.lua', info[2])
         # Remove any versions here that is not a symlink.
@@ -287,6 +308,22 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
     
     # By virtue of these being found in the published modules directory they are
     # assumed to be published!  Return the list of modname/version strings.
+    
+    # If specific module versions were requested, make sure only those are here
+    # so if gcc/13.2.0,python3 was requested all gcc ones would have been found,
+    # now remove any gcc mod_name/version that is not gcc/13.2.0
+    remove_modules = []
+    for specific in specific_modules:
+        smod, sver = specific.split('/')
+        for m in modules:
+            mod,ver = m.split('/')
+            if smod == mod:
+                # module name matched
+                # does the version match?
+                if not sver == ver:
+                    remove_modules.append(m)
+    # now prune the modules list:
+    modules = [m for m in modules if m not in remove_modules]
     return modules 
 #%%
 
@@ -309,20 +346,28 @@ def save_csv(test_list, out_csv):
         
 #%%
 
+class SplitArgs(argparse.Action):
+    ''' This is used to process comma-separated values in argparse.'''
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, [x.strip() for x in values.split(',')])
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Find test.qsub files")
-    parser.add_argument("-m","--mod",dest="mod_name", help="Name of a specific module to test.", default=None)
+    parser.add_argument("-m","--mod",dest="mod_name", help="Comma-separated names of specific module(s) to test.", 
+                        default=None, action=SplitArgs)
     parser.add_argument("-d","--dir", dest="directory", 
-                        help="Module publication directory to search for modules to test. This will find all available modules in that directory. Use paths like /share/module.8",
-                        default=None ,required=True)
-    parser.add_argument("-p","--pkg", dest="pkg_path", default = '/share/pkg.8', help="Limit tests to a particular /share/pkg directory. Defaults to /share/pkg.8. Use ALL for modules found in any directory.")
+                        help="Module publication directory to search for modules to test. This will find all available modules in that directory. Default is /share/module.8",
+                        default="/share/module.8")
+    parser.add_argument("-p","--pkg", dest="pkg_path", default = 'ALL', 
+                        help="Limit tests to a particular /share/pkg directory. Defaults to the value ALL, which means any /share/pkg directory used by a module.")
+    parser.add_argument("--no_exclude",dest='nox', action="store_true", default=False, 
+                        help="Normally the test and rcstools directories are excluded in /share/module. This removes the exclusion")
     parser.add_argument("--err", dest='err_file', default="errors.log", help='File to write errors to. Defaults to errors.log. If there are no errors this file is not created.')
     parser.add_argument("out_csv",help="output CSV file for use with Nextflow pipeline.")
     
     args = parser.parse_args()
 
-    if (not args.mod_name and not args.directory) or \
-       (args.mod_name and args.directory):
+    if (not args.mod_name and not args.directory):
         parser.print_help(sys.stderr)
         exit(1)
 
@@ -331,13 +376,11 @@ if __name__ == '__main__':
     
     mod_names = []
     if args.directory:
-        mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path)
-    elif args.mod_name:        
-        #mod_names = call_module_avail(args.mod_name)
-        raise Exception('Need to implement testing by module names')
+        mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path, 
+        ignore_excludes=args.nox, only_module_name=args.mod_name)
     
     if not mod_names:
-        raise('something terrible has happened...no modules found.')
+        print('No modules were found. Double check the module search directory.')
     
     # From the list of modulename/version strings, build a list of SccModule objects
     # with all of the test info.
@@ -346,7 +389,7 @@ if __name__ == '__main__':
     found_error = False
     err_file = args.err_file
     with open(err_file,'w') as erf:
-        for mn in tqdm.tqdm(mod_names):
+        for mn in mod_names:
             try: 
                 test_list.append(SccModule(mn))
             except Exception as e:
