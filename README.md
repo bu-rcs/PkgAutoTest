@@ -18,11 +18,12 @@ Alternatively, you can clone the repository:
 git clone https://github.com/bu-rcs/PkgAutoTest/
 ```
 
-There are three general steps to run this Nextflow pipeline:
+There are four general steps to run this Nextflow pipeline:
 
 1. [Step 1](#step-1---run-find_qsubpy) - Use `find_qsub.py` script to search for modules to test and generate a CSV input file to be used as Nextflow input.
 2. [Step 2](#step-2---nextflow-pipeline) - Run the nextflow pipeline using the CSV input generated in step 1.
 3. [Step 3](#step-3---review-the-results) - Review the results.
+4. [Step 4](#step-4---remove-working-directories) - Cleanup - remove working directory.
 
 If you run into an issue, take a look at the [Troubleshooting](#troubleshooting) section.
 
@@ -200,7 +201,7 @@ To examine the logs of a specific test, `cd` into the directory specified in the
 | results.txt                | The file contains the standard output of the `test.qsub`, specifically the values of "Passed/Error".  This is used to determine if the module passed or failed the test. |
 | test_metrics.csv                | The result of the test in a CSV format. |
 
-## Step 4 - Remove working directories
+## Step 4 - Cleanup, Remove working directories
 
 Due to the copying of the module test directories to the working directories before tests are run a fair amount (several dozen GB) of disk space is consumed by the working directories. After reviewing the Nextflow results it is recommended that you delete at least the working directories from tests that have passed from the `/projectnb/rcstest` project.
 
