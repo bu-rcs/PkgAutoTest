@@ -80,9 +80,11 @@ The following are the column definitions for the generated CSV file:
 Before proceeding to step 1, check to see if an error txt file was created and examine it.  Any modules listed in the error file were not processed properly and are excluded from the CSV file.
 
 ## Step 2 - Nextflow pipeline
+
 This sections shows a [simplified command](#simple-execution) of running the pipeline.  If you are familiar with Nextflow, you can explore the [Advanced](#advanced) section.
 
 ### Simple Execution
+
 To run the Nextflow pipeline the Nextflow software is required.  On the SCC make sure the nextflow module is loaded.
 
 ```bash
@@ -160,6 +162,7 @@ nextflow pkgtest.nf --csv_input module_list.csv -resume
 ```
 
 ## Step 3 - Review the results
+
 When the Nextflow pipeline finishes, a CSV file containing the same name as the input CSV file, but with a "report_" prefix (e.g. report_module_list.csv). Aside from your favorite text editor, on the SCC a spreadsheet tool is available with the `libreoffice` software. VSCode has a convenient built-in CSV display and there is a plugin ("Rainbow CSV") available to enhance CSV viewing. The following are the column definitions for the CSV report:
 
 | Column Name                      | Description |
@@ -170,9 +173,9 @@ When the Nextflow pipeline finishes, a CSV file containing the same name as the 
 | module                           | Name of the module tested.  |
 | tests_passed                     | Number of times the word "Passed" was found in the stdout stream of the test.qsub run.  |
 | tests_failed                     | Number of times the word "Error" was found in the stdout stream of the test.qsub run.   |
-| log_error_count                  | Number of times the word "error" was found in the test.qsub log file. (Not used for PASSED/FAILED evaluation)  | 
-| exit_code                        | Exit code from running the test.qsub script. | 
-| installer                        | The installer of the module.  | 
+| log_error_count                  | Number of times the word "error" was found in the test.qsub log file. (Not used for PASSED/FAILED evaluation)  |
+| exit_code                        | Exit code from running the test.qsub script. |
+| installer                        | The installer of the module.  |
 | category                         | The category of the module as defined in the modulefile.  |
 | install_date                     | The installation date extracted from the notes.txt file for the module.  |
 | workdir                          | The Nextflow working directory that contains log files for the job.  |
@@ -200,7 +203,6 @@ To examine the logs of a specific test, `cd` into the directory specified in the
 ## Step 4 - Remove working directories
 
 Due to the copying of the module test directories to the working directories before tests are run a fair amount (several dozen GB) of disk space is consumed by the working directories. After reviewing the Nextflow results it is recommended that you delete at least the working directories from tests that have passed from the `/projectnb/rcstest` project.
-
 
 ## Troubleshooting
 
@@ -247,7 +249,6 @@ The following are some suggestions on ways to troubleshoot this issue.
 
     For this situation, check the `.command.log` file in the working directory of this process to determine the issue.
 
-
 - **OPTION 2:** If you are able to identify the hash code for the process, such as `9f/7758d6`, then navigate to the working directory of that process.  In the directory where you ran the Nextflow script, there is a `work` directory.  `cd` into the `work` directory.  This directory will contain  2 character named directories.  `cd` into the directory that matches the hash code for the module test.  For our example it is `9f`.  Within this directory will be additional directories with longer hash values.  `cd` into the directory that matches the starting of the hash of interest.  For our example it is `7758d6...`.  
 
     Now you are in the working directory of the module.  Run `ls -la` to see the hidden files.  Examine the log files to search for any error messages that may indicate what went wrong.
@@ -256,7 +257,7 @@ The following are some suggestions on ways to troubleshoot this issue.
 
   ```console
   nextflow pkgtest.nf --csv_input module_list.csv  --errorStrategy terminate
-  ``` 
+  ```
 
 **Nextflow Process(es) are running forever**
   
