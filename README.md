@@ -23,7 +23,7 @@ There are four general steps to run this Nextflow pipeline:
 1. [Step 1](#step-1---run-find_qsubpy) - Use `find_qsub.py` script to search for modules to test and generate a CSV input file to be used as Nextflow input.
 2. [Step 2](#step-2---nextflow-pipeline) - Run the nextflow pipeline using the CSV input generated in step 1.
 3. [Step 3](#step-3---review-the-results) - Review the results.
-4. [Step 4](#step-4---remove-working-directories) - Cleanup - remove working directory.
+4. [Step 4](#step-4---cleanup-remove-working-directories) - Cleanup, remove working directory.
 
 If you run into an issue, take a look at the [Troubleshooting](#troubleshooting) section.
 
@@ -34,6 +34,12 @@ After loading the SCC `pkgautotest` module, the `find_qsub.py` will be available
 ```bash
 find_qsub.py -h
 ```
+
+NOTE: By default `find_qsub.py` will exclude the directories listed in the search.  To override this, use `--no_exclude` flag:
+
+- /share/module.8/test
+- /share/module.8/rcstools
+
 
 Here are two examples of how to use the script.
 
