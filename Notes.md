@@ -1,11 +1,20 @@
 # Notes from the project meetings
 
+## May 28, 2024
+1. Dennis tested `find_qsub.py -m` flag and it seems to work.
+   Yun - suggested maybe we should list in the error file for modules that don't currently have a test.  Dennis - Something we can discuss with Brian next time.
+2. Reviewed and tested `--no_exclude`, determined that the `--no_exclude` and `-d` to get results for only the `/share/module.8/test` directory.
+3. We are good to present the PkgAutotest to the team on Wednesday.  Dennis will complete pull request, tag it with version 1.0, and update the SCC module.
+   Andy - Maybe we should have office hours on Fridays where people can try it and ask questions.
+5. We all agree we should have a test setup to check nextflow script and find_qsub.py script and compare to expected output.  We will create an issue for this task.
+6. Apps team need to be added to rcstest project.  Dennis will ask Brian about the status of this task.
+
 ## May 21, 2024
 1. find_qsub.py - can now specify a module:
 `find_qsub.py -m gcc/13.2.0 out.csv`
 or 
 `find_qsub.py -m gcc/13.2.0,python3 out.csv`
-2. find_qsub.py - all /share/pkg.* directories are searched by default. A new "--no_exclude" flag has been added, when present the /share/module/test and rcstools directories are searched for modules with test directories.
+2. find_qsub.py - all /share/pkg.* directories are searched by default. A new "--no_exclude" flag has been added, when present the /share/module.8/test and rcstools directories are searched for modules with test directories.
 3. To do: Approve pull request to merge develop back into main, tag 1.0 release.
 4. To do: a test setup. Maybe something like a directory in the git repo of modules that will produce a known set of passes and fails for the nextflow pipeline.
 
