@@ -90,7 +90,7 @@ process runTests {
 
     # THE TEST PASSES IF ONLY WORDS "Passed" ARE FOUND
     # IN results.txt AND THE \$EXIT_CODE IS 0
-    if [ "\$(grep -c -v Passed results.txt)" -eq 0 ] && [ \$EXIT_CODE -eq 0 ]
+    if [ "\$(grep -c Passed results.txt)" -gt 0 ] && [ "\$(grep -c -v Passed results.txt)" -eq 0 ] && [ \$EXIT_CODE -eq 0 ]
     then
        TEST_RESULT=PASSED  
     fi 

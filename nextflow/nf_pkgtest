@@ -9,6 +9,7 @@
 #$ -m eas
 
 module load nextflow
+module use /share/module.8/rcstools
 module load pkgautotest/1.0
 
 nextflow $PKGTEST_SCRIPT --csv_input $1
