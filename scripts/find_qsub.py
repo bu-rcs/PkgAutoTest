@@ -381,6 +381,7 @@ if __name__ == '__main__':
     
     if not mod_names:
         print('No modules were found. Double check the module search directory.')
+        exit(1)
     
     # From the list of modulename/version strings, build a list of SccModule objects
     # with all of the test info.
