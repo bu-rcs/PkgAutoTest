@@ -48,10 +48,11 @@ class SccModule():
     # If the column headers change, make sure to update to_csv_rows()
     
     ''' Load all the info needed for a module '''
-    def __init__(self, name_version):
+    def __init__(self, name_version, search_dir):
         ''' module_name_version -string  of the form modname/version 
             modulefile_path - path to the modulefile '''
         self.name_version = name_version
+        self.search_dir = search_dir
 
         # validate the argument.
         tmp = name_version.split('/')
@@ -92,7 +93,9 @@ class SccModule():
             
             Return the pkg_path ('/share/pkg.8') and the
             module base dir ('/share/pkg.8/foo/1.0') '''
-        cmd = f'module show {self.name_version} |& xargs -0  echo'     
+        
+        cmd = f'module use {self.search_dir}; module show {self.name_version} |& xargs -0  echo' 
+
         result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE)
         mod_show_txt = result.stdout.decode("utf-8").split('\n')
         
@@ -381,6 +384,7 @@ if __name__ == '__main__':
     
     if not mod_names:
         print('No modules were found. Double check the module search directory.')
+        exit(1)
     
     # From the list of modulename/version strings, build a list of SccModule objects
     # with all of the test info.
@@ -391,7 +395,7 @@ if __name__ == '__main__':
     with open(err_file,'w') as erf:
         for mn in mod_names:
             try: 
-                test_list.append(SccModule(mn))
+                test_list.append(SccModule(mn, args.directory))
             except Exception as e:
                 erf.write(f'{e}{os.linesep}')
                 found_error = True
