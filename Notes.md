@@ -1,5 +1,10 @@
 # Notes from the project meetings
 
+## June 4, 2024
+1. using `--no_exclude` and `-d` to get  `/share/module.8/test`:  Add this to the find_qsub.py help message.
+2. Tutorial meeting scheduled for Friday 6/7 at 10am.
+3. Apps team members + Charlie were added to the rcstest project by Brian.
+
 ## May 28, 2024
 1. Dennis tested `find_qsub.py -m` flag and it seems to work.
    Yun - suggested maybe we should list in the error file for modules that don't currently have a test.  Dennis - Something we can discuss with Brian next time.
