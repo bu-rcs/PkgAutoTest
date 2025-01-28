@@ -1,5 +1,11 @@
 # Notes from the project meetings
 
+## January 28, 2025
+1. Automation: run all package testing on a monthly basis with a cronjob.
+  * We need a post-testing script that reads in the results.csv file and emails everyone with failed tests, maybe with a 2 week deadline to fix it.
+  * once this is in place a v1.1 release will be done.
+  * Package authors who aren't in RCS anymore have theirs emailed to Brian.
+
 ## June 4, 2024
 1. using `--no_exclude` and `-d` to get  `/share/module.8/test`:  Add this to the find_qsub.py help message.
 2. Tutorial meeting scheduled for Friday 6/7 at 10am.
