@@ -176,6 +176,7 @@ When the Nextflow pipeline finishes, a CSV file containing the same name as the 
 | -------------                    | ------------- |
 | job_number                       | The job number for the job. |
 | hostname                         | The hostname of the node the job ran on. |
+| qsub_file                        | The qsub file used for the test. |
 | test_result<sup>1</sup>          | The overall test result. e.g PASSED or FAILED |
 | module                           | Name of the module tested.  |
 | tests_passed                     | Number of times the word "Passed" was found in the stdout stream of the test.qsub run.  |
