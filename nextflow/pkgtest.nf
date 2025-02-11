@@ -98,8 +98,8 @@ process runTests {
 
     # WRITE THE TEST RESULT INFORMATION TO A CSV FILE
 cat > test_metrics.csv << EOF
-job_number, hostname, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
-\$JOB_ID, \$HOSTNAME, \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date, \$PWD
+job_number, hostname, qsub_file, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
+\$JOB_ID, \$HOSTNAME, \$QSUB_FILE, \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date, \$PWD
 EOF
 
     """
