@@ -109,7 +109,7 @@ This script will launch Nextflow pipeline and will use the CSV file to determine
 Here is an example of submitting the pipeline as a batch job:
 
 ``` bash
-qsub nf_pkgtest module_list.csv
+qsub -b y nf_pkgtest module_list.csv
 ```
 
 
