@@ -1,0 +1,45 @@
+#!/bin/bash -l
+
+#$ -P rcstest
+#$ -l h_rt=120:00:00
+#$ -N nf_pkgautotest
+#$ -j y
+
+# Create the working directory for the job
+OUTDIR=/projectnb/rcstest/cronjobs/
+RUN_DIR=$(date +"%Y_%m_%d_%H_%M")
+
+echo Creating test directory $OUTDIR/$RUN_DIR 
+mkdir -p $OUTDIR/$RUN_DIR 
+cd $OUTDIR/$RUN_DIR
+
+echo ========================================
+echo Loading modules
+echo ========================================
+module use /share/module.8/rcstools
+module load nextflow
+module load pkgautotest/1.0
+module list
+
+echo ========================================
+echo Running find_qsub.py
+echo ========================================
+find_qsub.py -m qgis module_list.csv
+
+echo ========================================
+echo Running nextflow pipeline
+echo ========================================
+nf_pkgtest module_list.csv
+
+echo ========================================
+echo Running Perl email script
+echo ========================================
+email_notif.pl report_module_list.csv
+
+echo ========================================
+echo Done!
+echo ========================================
+
+
+
+
