@@ -20,7 +20,7 @@ if ($#ARGV != 0) {
 }
 
 my ($test_result_csv) = @ARGV;
-my @active_installers = qw(akamble aramp10 bgregor cjahnke jack jbevan kkurkela  ktrn milechin yshen16);
+my @active_installers = get_active_installers(); 
 my $designate_installer="bgregor";
 my $from=qw(yshen16@bu.edu);
 
@@ -32,6 +32,8 @@ foreach my $installer (@active_installers) {
 }
 
 # header for test result csv:
+
+
 #,job_number, hostname, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
 open(R, $test_result_csv) or die "can't open $test_result_csv: $!";
 <R>; #skip the first line (header)
@@ -68,4 +70,14 @@ foreach my $installer (keys %notif_mlist) {
     
 } #end foreach
 
-print "Emails are all sent!\n\n"
+print "Emails are all sent!\n\n";
+
+
+#################################
+# SUBROUTINES
+#################################
+sub get_active_installers{
+    my $CMD="grep scv ~scfacct/Project|cut -d: -f1";
+    my $output=qx/$CMD/;
+    return(split("\n", $output));      
+}
