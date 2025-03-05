@@ -23,6 +23,7 @@ my ($test_result_csv) = @ARGV;
 my @active_installers = get_active_installers(); 
 my $designate_installer="bgregor";
 my $from=qw(yshen16@bu.edu);
+my $to=qw(help@scc.bu.edu);
 
 my %notif_mlist = ();
 
@@ -61,7 +62,8 @@ foreach my $installer (keys %notif_mlist) {
 #    print "$installer, $notif_mlist{$installer}{MSG_TEXT}";
     if($notif_mlist{$installer}{MSG_TEXT} ne "") {
 	open(MAIL, "|/usr/sbin/sendmail -t") or die "Cannot open sendmail: $!";
-	print MAIL "To: $notif_mlist{$installer}{EMAIL}\n";
+	#	print MAIL "To: $notif_mlist{$installer}{EMAIL}\n";
+	print MAIL "To: $to\n";
 	print MAIL "From: $from\n";
 	print MAIL "Subject: $installer, please fix the failed tests\n\n";
 	print MAIL $notif_mlist{$installer}{MSG_TEXT};
