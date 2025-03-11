@@ -1,5 +1,10 @@
 # Notes from the project meetings
 
+## March 11, 2025
+1. Cronjob and qsub scripts added.
+2. A 1.1 release will be made and be added to /share/pkg.8
+3. Cronjob setup: Brian's account on `sccsvc` will run the cronjob. 
+
 ## January 28, 2025
 1. Automation: run all package testing on a monthly basis with a cronjob.
   * We need a post-testing script that reads in the results.csv file and emails everyone with failed tests, maybe with a 2 week deadline to fix it.
