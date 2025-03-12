@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+
 #
 #	:  Amanda Yun Shen
 #	date:	 01/30/2025
@@ -7,14 +9,11 @@
 #	usage:   
 #         $0 
 
-
-#!/usr/bin/perl
-
 use 5.010;
 use warnings;
 use strict;
 
-if ($#ARGV != 0) {
+if ($#ARGV != 1) {
     print "USAGE -- \n\temail_notif.pl filepath_failed_test_result.csv\n";
     exit(-1);
 }
@@ -42,16 +41,10 @@ while(<R>) {
     chomp;
     $_=~s/\s+//g;
     my ($test_result, $module, $installer, $workdir)=(split /,/)[3,4,9,12];
-    # print join "::", $test_result, $module, $installer, $workdir;
-    # print "\n";
-    # print "installer=$installer\n";
     if( grep {$_ eq $installer} @active_installers ) {
-#	print "installer: $installer\n";
 	$notif_mlist{$installer}{MSG_TEXT} .= sprintf("%s\t%s\t%s\n", $installer, $module,$workdir);
     }
     else {
-	#	push @past_installers, $installer;
-#	print "using designate installer: $installer\n";
 	$notif_mlist{$designate_installer}{MSG_TEXT} .= sprintf("%s\t%s\t%s\n", $installer, $module,$workdir);
     }
 }
@@ -62,7 +55,6 @@ foreach my $installer (keys %notif_mlist) {
 #    print "$installer, $notif_mlist{$installer}{MSG_TEXT}";
     if($notif_mlist{$installer}{MSG_TEXT} ne "") {
 	open(MAIL, "|/usr/sbin/sendmail -t") or die "Cannot open sendmail: $!";
-	#	print MAIL "To: $notif_mlist{$installer}{EMAIL}\n";
 	print MAIL "To: $to\n";
 	print MAIL "From: $from\n";
 	print MAIL "Subject: $installer, please fix the failed tests\n\n";
