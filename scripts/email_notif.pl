@@ -21,13 +21,12 @@ if ($#ARGV != 1) {
 my ($test_result_csv) = @ARGV;
 my @active_installers = get_active_installers(); 
 my $designate_installer="bgregor";
-my $from=qw(yshen16@bu.edu);
+my $from="";
 my $to=qw(help@scc.bu.edu);
 
 my %notif_mlist = ();
 
 foreach my $installer (@active_installers) {
-    $notif_mlist{$installer}{EMAIL}=$installer . "\@bu\.edu";
     $notif_mlist{$installer}{MSG_TEXT}="";
 }
 
@@ -43,9 +42,11 @@ while(<R>) {
     my ($test_result, $module, $installer, $workdir)=(split /,/)[3,4,9,12];
     if( grep {$_ eq $installer} @active_installers ) {
 	$notif_mlist{$installer}{MSG_TEXT} .= sprintf("%s\t%s\t%s\n", $installer, $module,$workdir);
+	$notif_mlist{$installer}{FROM} = $installer . "\@bu\.edu";
     }
     else {
 	$notif_mlist{$designate_installer}{MSG_TEXT} .= sprintf("%s\t%s\t%s\n", $installer, $module,$workdir);
+	$notif_mlist{$designate_installer}{FROM} = $designate_installer . "\@bu\.edu";
     }
 }
 close R;
@@ -56,7 +57,7 @@ foreach my $installer (keys %notif_mlist) {
     if($notif_mlist{$installer}{MSG_TEXT} ne "") {
 	open(MAIL, "|/usr/sbin/sendmail -t") or die "Cannot open sendmail: $!";
 	print MAIL "To: $to\n";
-	print MAIL "From: $from\n";
+	print MAIL "From: $notif_mlist{$installer}{FROM}\n";
 	print MAIL "Subject: $installer, please fix the failed tests\n\n";
 	print MAIL $notif_mlist{$installer}{MSG_TEXT};
 	close(MAIL) or warn "sendmail did not close nicely";
