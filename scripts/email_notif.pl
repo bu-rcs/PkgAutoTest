@@ -21,7 +21,6 @@ if ($#ARGV != 1) {
 my ($test_result_csv) = @ARGV;
 my @active_installers = get_active_installers(); 
 my $designate_installer="bgregor";
-my $from="";
 my $to=qw(help@scc.bu.edu);
 
 my %notif_mlist = ();
