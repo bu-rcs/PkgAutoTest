@@ -13,7 +13,9 @@ use 5.010;
 use warnings;
 use strict;
 
-if ($#ARGV != 1) {
+my $n_arg = scalar(@ARGV);
+
+if ($n_arg != 1) {
     print "USAGE -- \n\temail_notif.pl filepath_failed_test_result.csv\n";
     exit(-1);
 }
