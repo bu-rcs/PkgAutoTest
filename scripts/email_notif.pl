@@ -14,7 +14,6 @@ use warnings;
 use strict;
 
 my $n_arg = scalar(@ARGV);
-
 if ($n_arg != 1) {
     print "USAGE -- \n\temail_notif.pl filepath_failed_test_result.csv\n";
     exit(-1);
@@ -29,6 +28,7 @@ my %notif_mlist = ();
 
 foreach my $installer (@active_installers) {
     $notif_mlist{$installer}{MSG_TEXT}="";
+    ($notif_mlist{$installer}{MSG_HEAD},$notif_mlist{$installer}{FMT_S})=print_header($installer);
 }
 
 # header for test result csv:
@@ -40,13 +40,14 @@ open(R, $test_result_csv) or die "can't open $test_result_csv: $!";
 while(<R>) {
     chomp;
     $_=~s/\s+//g;
+    next if $_ eq ""; #ignore empty lines
     my ($test_result, $module, $installer, $workdir)=(split /,/)[3,4,9,12];
     if( grep {$_ eq $installer} @active_installers ) {
-	$notif_mlist{$installer}{MSG_TEXT} .= sprintf("%s\t%s\t%s\n", $installer, $module,$workdir);
+	$notif_mlist{$installer}{MSG_TEXT} .= sprintf($notif_mlist{$installer}{FMT_S}, $installer, $module,$workdir);
 	$notif_mlist{$installer}{FROM} = $installer . "\@bu\.edu";
     }
     else {
-	$notif_mlist{$designate_installer}{MSG_TEXT} .= sprintf("%s\t%s\t%s\n", $installer, $module,$workdir);
+	$notif_mlist{$designate_installer}{MSG_TEXT} .= sprintf($notif_mlist{$designate_installer}{FMT_S}, $installer, $module,$workdir);
 	$notif_mlist{$designate_installer}{FROM} = $designate_installer . "\@bu\.edu";
     }
 }
@@ -54,16 +55,14 @@ close R;
 
 # send emails:
 foreach my $installer (keys %notif_mlist) {
-#    print "$installer, $notif_mlist{$installer}{MSG_TEXT}";
     if($notif_mlist{$installer}{MSG_TEXT} ne "") {
 	open(MAIL, "|/usr/sbin/sendmail -t") or die "Cannot open sendmail: $!";
 	print MAIL "To: $to\n";
 	print MAIL "From: $notif_mlist{$installer}{FROM}\n";
 	print MAIL "Subject: $installer, please fix the failed tests\n\n";
-	print MAIL $notif_mlist{$installer}{MSG_TEXT};
+	print MAIL $notif_mlist{$installer}{MSG_HEAD} . $notif_mlist{$installer}{MSG_TEXT};
 	close(MAIL) or warn "sendmail did not close nicely";
-    }
-    
+
 } #end foreach
 
 print "Emails are all sent!\n\n";
@@ -77,3 +76,30 @@ sub get_active_installers{
     my $output=qx/$CMD/;
     return(split("\n", $output));      
 }
+
+sub print_header {
+    my ($installer) = @_;
+    my @colnames=("Installer", "Module", "WorkDir");
+    my @col_minlen=();
+    return if(!defined($installer));
+    $col_minlen[0]=length($installer);
+    $col_minlen[1]=20;
+    $col_minlen[2]=30;
+    my @sep_str=();
+    my @fmt_str=();
+
+    my $delim = "  "; 
+    my $fmt_s="";
+
+    for my $i (0..$#colnames) {
+	my $col_len=(length($colnames[$i])>$col_minlen[$i])?length($colnames[$i]):$col_minlen[$i];
+	push @sep_str,  "-" x $col_len;
+	push @fmt_str, "%-" . $col_len . "s";
+    }
+    $fmt_s = join($delim, @fmt_str) . "\n";
+
+    my $out = sprintf $fmt_s, @colnames;
+    $out .= sprintf $fmt_s, @sep_str;
+    return ($out, $fmt_s);
+}
+
