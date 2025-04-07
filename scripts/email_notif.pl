@@ -88,7 +88,7 @@ sub print_header {
     my @sep_str=();
     my @fmt_str=();
 
-    my $delim = "  "; 
+    my $delim = " | "; 
     my $fmt_s="";
 
     for my $i (0..$#colnames) {
