@@ -62,7 +62,7 @@ foreach my $installer (keys %notif_mlist) {
 	print MAIL "Subject: $installer, please fix the failed tests\n\n";
 	print MAIL $notif_mlist{$installer}{MSG_HEAD} . $notif_mlist{$installer}{MSG_TEXT};
 	close(MAIL) or warn "sendmail did not close nicely";
-
+    }
 } #end foreach
 
 print "Emails are all sent!\n\n";
