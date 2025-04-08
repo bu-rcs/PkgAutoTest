@@ -9,7 +9,9 @@
 cd /projectnb/rcstest/cronjobs
 
 module use /share/module.8/rcstools
-module load pkgautotest/1.1
+
+# use the default versions.
+module load nextflow pkgautotest 
 
 # Timestamped run directory
 RUN_DIR=$(date +"%Y_%m_%d_%H_%M")
@@ -18,8 +20,6 @@ mkdir $RUN_DIR
 cd $RUN_DIR
 
 # Submit the testing job
-qsub $SCC_PKGAUTOTEST_SCRIPTS/pkgauto_email.qsub
+qsub $SCC_PKGAUTOTEST_DIR/PkgAutoTest/scripts/pkgauto_email.qsub
 
 # and done!
-
-
