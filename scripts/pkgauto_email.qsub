@@ -3,24 +3,25 @@
 
 #$ -P rcstest
 #$ -N pkgautotest_cronjob
-#$ -l h_rt=96:00:00
+#$ -l h_rt=120:00:00
 
 #$ -m ea
 #$ -j y
 
 # The bash script that is run by cron
 # will make a timestamped output directory
-# and run 'qsub' on this script from there.module use /share/module.8/rcstools
+# and run 'qsub' on this script from there.
+# there is no need to change to a working directory.
 
 
 module use /share/module.8/rcstools
 
-# use the default nextflow
-module load nextflow pkgautotest/1.1
+# use the default nextflow and pkgautotest
+module load nextflow pkgautotest 
 
 # defaults to all available pkg8 tests.
-find_qsub.py modules_crontab.csv 
-nextflow $SCC_PKGAUTOTEST_BLAH/pkgtest.nf --csv_input modules_crontab.csv
+find_qsub.py -p /share/pkg.8 modules_crontab.csv 
+nextflow $PKGTEST_SCRIPT --csv_input modules_crontab.csv
 
 # Extract the header row
 head -n 1 report_modules_crontab.csv > fail_report_modules_crontab.csv
@@ -29,5 +30,3 @@ grep FAILED report_modules_crontab.csv >> fail_report_modules_crontab.csv
 
 # Send email(s) to ServiceNow
 email_notif.pl fail_report_modules_crontab.csv
-
-
