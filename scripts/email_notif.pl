@@ -34,20 +34,20 @@ foreach my $installer (@active_installers) {
 # header for test result csv:
 
 
-#,job_number, hostname, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
+#,job_number, hostname, qsub_name, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
 open(R, $test_result_csv) or die "can't open $test_result_csv: $!";
 <R>; #skip the first line (header)
 while(<R>) {
     chomp;
     $_=~s/\s+//g;
     next if $_ eq ""; #ignore empty lines
-    my ($test_result, $module, $installer, $workdir)=(split /,/)[3,4,9,12];
+    my ($qsub_name, $test_result, $module, $installer, $workdir)=(split /,/)[2,3,4,9,12];
     if( grep {$_ eq $installer} @active_installers ) {
-	$notif_mlist{$installer}{MSG_TEXT} .= sprintf($notif_mlist{$installer}{FMT_S}, $installer, $module,$workdir);
+	$notif_mlist{$installer}{MSG_TEXT} .= sprintf($notif_mlist{$installer}{FMT_S}, $installer, $qsub_name, $module,$workdir);
 	$notif_mlist{$installer}{FROM} = $installer . "\@bu\.edu";
     }
     else {
-	$notif_mlist{$designate_installer}{MSG_TEXT} .= sprintf($notif_mlist{$designate_installer}{FMT_S}, $installer, $module,$workdir);
+	$notif_mlist{$designate_installer}{MSG_TEXT} .= sprintf($notif_mlist{$designate_installer}{FMT_S}, $installer, $qsub_name, $module,$workdir);
 	$notif_mlist{$designate_installer}{FROM} = $designate_installer . "\@bu\.edu";
     }
 }
@@ -79,12 +79,13 @@ sub get_active_installers{
 
 sub print_header {
     my ($installer) = @_;
-    my @colnames=("Installer", "Module", "WorkDir");
+    my @colnames=("Installer", "qsub_name", "Module", "WorkDir");
     my @col_minlen=();
     return if(!defined($installer));
-    $col_minlen[0]=length($installer);
-    $col_minlen[1]=20;
-    $col_minlen[2]=30;
+    $col_minlen[0]=length($installer)<8?8:length($installer);
+    $col_minlen[1]=12;
+    $col_minlen[2]=25;
+    $col_minlen[3]=30;
     my @sep_str=();
     my @fmt_str=();
 
