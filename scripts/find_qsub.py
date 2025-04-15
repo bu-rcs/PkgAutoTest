@@ -1,5 +1,5 @@
 #!/bin/env python3
-
+#%% imports
 # Prototype of a script that finds test.qsub files.
 # This uses the "module avail" function to find files to test.
 
@@ -12,8 +12,14 @@
 # Run example:
 #    Load a python module:
 #    module load python3/3.10.12
+#    # default: read /share/module.8, look for packages in 
+#    # all /share/pkg.* directories:
+#    python find_qsub.py out1.csv
+#    # Look just for modules named openmpi. This argument can be
+#    # comma separated, i.e. openmpi,gcc or include versions: openmpi/4.1.5
 #    python find_qsub.py -m openmpi out3.csv
-#    python find_qsub.py -d /share/pkg.8 out2.csv
+#    # Consider only modules installed into /share/pkg.8
+#    python find_qsub.py -p /share/pkg.8 out2.csv
 
 
 
@@ -27,19 +33,19 @@ import argparse
 import subprocess
 import os
 import sys
-import csv
 import glob 
 import pprint 
-import functools
-
+import functools as ft
+from multiprocessing import Pool
+import itertools as it
 # TODO: print output using logging module.
-import logging
+#import logging
     
-    
+endl = os.linesep
 
-#%%
-
-@functools.total_ordering
+#%% SccModule
+# functools.total_ordering -> given __lt__, also define __gt__, __eq__ etc.
+@ft.total_ordering
 class SccModule():
     # List of the column headers, in the output order.
     HEADERS=['module_name','version','module_name_version','module_pkg_dir',
@@ -79,13 +85,17 @@ class SccModule():
             extract qsub options. Return a dictionary of the 
             full test.*.qsub path with the qsub_options as values.'''
         test_dir = os.path.join(mod_path,'test')
+        # reminder - glob.glob() returns a list
         testqsubs = glob.glob(os.path.join(test_dir,'test.qsub')) + \
                     glob.glob(os.path.join(test_dir,'test.*.qsub'))
         tests = {}
         for tq in testqsubs:
             tests[tq] = self.extract_qsub_opts(tq)
         return tests                
-        
+
+    def has_tests(self):
+        ''' Does this module have any test.qsub type files? '''
+        return len(self.tests) > 0        
 
     def get_module_info(self):
         ''' Run "module show" on the module and parse out the
@@ -98,7 +108,7 @@ class SccModule():
 
         result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE)
         mod_show_txt = result.stdout.decode("utf-8").split('\n')
-        
+
         # Filter mod_show_txt for SCC_{cap_name}_DIR. Replace any hyphens
         # with underscores
         cap_name = self.name.upper().replace('-','_')
@@ -192,7 +202,7 @@ class SccModule():
             # Do we want to raise an exception here?
             # Or print/log error
             #raise f'{notes_txt} not found'
-            sys.stderr.write(f'{notes_txt} not found for {self.name_version}\n')
+            #sys.stderr.write(f'{notes_txt} not found for {self.name_version}\n')
             return mod_installer, mod_install_date
 
         with open(notes_txt) as f:
@@ -240,11 +250,21 @@ class SccModule():
             row = ','.join(row)
             rows.append(row)
         return rows
+    
+    @staticmethod
+    def make_one(args):
+        scc_mod = None
+        msg = None
+        try:
+            scc_mod = SccModule(*args)
+        except Exception as e:
+            msg = f'{args[0]}   {e}'
+        return scc_mod, msg
            
     
-#%%    
-def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools', 'fhspl'], ignore_excludes=False, only_module_name=None):
-    ''' From a directory of publichsed modules (like /share/module.8), search down to find all module/version pairs.
+#%% get_modules_from_dir
+def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools', 'fhspl'], ignore_excludes=False, only_module_name=None, skip_log='skipped.log'):
+    ''' From a directory of published modules (like /share/module.8), search down to find all module/version pairs.
         Find symlinks and use them to build modname/version strings, as this is how they are published.
         
         Note that .lua links are the ones we want, ignore any .tcl links at the moment.
@@ -255,12 +275,15 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
         like '/share/pkg.8
         
         only_module_name (a list) is a filter that returns only modules with that name.
+        
+        skip_log - file to log modules whose tests are skipped to.
     '''
     modules = []
     
     # Remove any entries in only_module_name with a / as those refer to specific
     # modules.
     specific_modules = []
+    exclude_skipped = set()
     if only_module_name:
         incoming = only_module_name.copy()
         only_module_name = []
@@ -271,7 +294,7 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
                 only_module_name.append(i.split('/')[0])
             else:
                 only_module_name.append(i)
-
+    
     # Recursively search for symlinks to lua modulefiles.
     for info in os.walk(directory):
         # info is a tuple like:  ('/share/module.8/chemistry/berkeleygw', [], ['3.1.0.lua', '2.1.lua'])        
@@ -292,7 +315,9 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
             for ex in exclude_dirs:
                 if info[0].find('/'+ex) >= 0:
                     skip = True
+                    break
         if skip:
+            exclude_skipped.add(ex)
             continue
                 
         mod_name = os.path.basename(info[0])
@@ -308,6 +333,13 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
         versions = map(lambda x: os.path.splitext(x)[0], versions)
         # and for each version join it to the mod_name and store
         modules.extend((mod_name + '/' + x for x in versions))
+
+    if not ignore_excludes:
+        with open(skip_log,'w') as sl:
+            sl.write(f'Excluded modules:{endl}{endl}')
+            for se in exclude_skipped:
+                sl.write(f'{se}{endl}')
+            sl.write(f'{endl}-----------------------------------{endl}{endl}')
     
     # By virtue of these being found in the published modules directory they are
     # assumed to be published!  Return the list of modname/version strings.
@@ -328,7 +360,7 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
     # now prune the modules list:
     modules = [m for m in modules if m not in remove_modules]
     return modules 
-#%%
+#%% save_csv
 
 def save_csv(test_list, out_csv):
     ''' Save the CSV file. '''
@@ -340,14 +372,14 @@ def save_csv(test_list, out_csv):
         sys.stdout.flush()
         # Write the header row
         header = ','.join(SccModule.HEADERS)
-        nl = os.linesep
+        nl = endl
         csvfile.write(f'{header}{nl}')
         for test in test_list:
             for row in test.to_csv_rows():
                 csvfile.write(f'{row}{nl}')
                 
         
-#%%
+#%% main
 
 class SplitArgs(argparse.Action):
     ''' This is used to process comma-separated values in argparse.'''
@@ -367,7 +399,8 @@ if __name__ == '__main__':
                         help="Normally the test and rcstools directories are excluded in /share/module. This removes the exclusion")
     parser.add_argument("--err", dest='err_file', default="errors.log", help='File to write errors to. Defaults to errors.log. If there are no errors this file is not created.')
     parser.add_argument("out_csv",help="output CSV file for use with Nextflow pipeline.")
-    
+    parser.add_argument("--skip", dest='skip_file', default='skipped.log',
+                        help='File to log skipped module tests.') 
     args = parser.parse_args()
 
     if (not args.mod_name and not args.directory):
@@ -377,10 +410,14 @@ if __name__ == '__main__':
     if args.pkg_path == 'ALL':
         args.pkg_path = None
     
+    # =============================================================================
+    #     Search the module directory, get available modules.
+    # =============================================================================
     mod_names = []
     if args.directory:
         mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path, 
-        ignore_excludes=args.nox, only_module_name=args.mod_name)
+                                        ignore_excludes=args.nox, only_module_name=args.mod_name,
+                                        skip_log=args.skip_file)
     
     if not mod_names:
         print('No modules were found. Double check the module search directory.')
@@ -392,22 +429,40 @@ if __name__ == '__main__':
     print('Loading module test info.')
     found_error = False
     err_file = args.err_file
-    with open(err_file,'w') as erf:
-        for mn in mod_names:
-            try: 
-                test_list.append(SccModule(mn, args.directory))
-            except Exception as e:
-                erf.write(f'{e}{os.linesep}')
+    
+    # Query the modules in parallel, to speed things up.
+    ncores = int(os.environ.get('NSLOTS',1))
+    with Pool(processes=ncores) as pool, open(err_file,'w') as erf:
+        jobs = pool.imap_unordered(SccModule.make_one, zip(mod_names,it.repeat(args.directory)))
+        for i in  range(len(mod_names)):
+            scc_mod, except_msg = next(jobs)
+            if except_msg: 
+                erf.write(f'{except_msg}{endl}')
                 found_error = True
+            else:
+                if scc_mod:
+                    test_list.append(scc_mod)       
+
     # No errors found, delete the error file
     if not found_error:
         os.unlink(err_file)
     else:
-        print(f'Errors found, check {err_file} for details.')
-        print(os.linesep)        
+        print(f'Errors found, check {err_file} for details.{endl}')
+      
+    # Loop through the modules, and log any that lack tests.
+    # Are there any modules that were skipped because they lacked tests?
+    if any(filter(lambda x: not x.has_tests(), test_list)):
+        mode = 'a' if os.path.isfile(args.skip_file) else 'w'
+        with open(args.skip_file, mode) as f:
+            for i, mod in enumerate(test_list):
+                if i==0:
+                    f.write(f'Tests skipped due to missing a test.qsub:{endl}{endl}')
+                if not mod.has_tests():
+                    f.write(f'{mod.name_version},{mod.pkg_dir}{endl}')
                 
-    # Sort the SccModule objects by name/version
-    test_list.sort()
+    # Now remove any module without tests from test_list
+    # and sort by name/version
+    test_list = sorted(filter(lambda x: x.has_tests(), test_list))
         
     # Save the output CSV file.
     save_csv(test_list, args.out_csv)

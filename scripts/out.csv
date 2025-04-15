@@ -1,7 +1,0 @@
-module_name,version,module_name_version,module_pkg_dir,module_installer,module_install_date,module_category,module_prereqs,test_path,qsub_options
-gdal,3.1.2,gdal/3.1.2,/share/pkg.8,milechin,04/26/23,gis,python3/3.7.7,/share/pkg.8/gdal/3.1.2/test/test.qsub,
-gdal,3.6.4,gdal/3.6.4,/share/pkg.8,milechin,08/08/23,gis,,/share/pkg.8/gdal/3.6.4/test/test.qsub,
-gdal,3.8.4,gdal/3.8.4,/share/pkg.8,milechin,02/26/24,gis,,/share/pkg.8/gdal/3.8.4/test/test.qsub,
-qgis,3.28.14,qgis/3.28.14,/share/pkg.8,milechin,01/04/24,gis,,/share/pkg.8/qgis/3.28.14/test/test.qsub,
-seadas,8.3.0,seadas/8.3.0,/share/pkg.8,milechin,08/11/23,gis,python3,/share/pkg.8/seadas/8.3.0/test/test.qsub,
-seadas,8.4.1,seadas/8.4.1,/share/pkg.8,milechin,04/01/24,gis,python3,/share/pkg.8/seadas/8.4.1/test/test.qsub,
