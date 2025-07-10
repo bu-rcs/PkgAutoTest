@@ -52,8 +52,6 @@ process runTests {
     ## COPY TEST DIRECTORY INTO WORK DIRECTORY 
     cp -r \$TEST_DIR \$WORKDIR
 
-    # CD INTO TEST DIRECTORY
-    cd `basename \$TEST_DIR`
 
     ## PRINT ENVIRONMENT VARIABLES ASSOCIATED WITH THE TEST
     echo MODULE=$module_name_version
@@ -68,6 +66,11 @@ process runTests {
     echo WORKDIR=\$WORKDIR
     echo USER=\$USER
     echo keep_passed=${params.keep_passed}
+
+    # CD INTO TEST DIRECTORY
+    BASE_NAME=`basename \$TEST_DIR` 
+    NF_TEST_DIR=\$WORKDIR/\$BASE_NAME     # GET THE NAME OF THE TEST DIRECTORY
+    cd \$NF_TEST_DIR
 
     ## APPEND XVFB KILL COMMAND TO QSUB FILE (see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18)
     echo '\n#### CODE BLOCK INSERTED BY NEXTFLOW ####' >> \$QSUB_FILE
@@ -112,7 +115,7 @@ EOF
     elif [[ \$TEST_RESULT == PASSED &&  ${params.keep_passed} == false ]]
     then
         echo "Parameter keep_passed=${params.keep_passed} and test result is \$TEST_RESULT, therefore deleting the test directory."
-        rm -rf \$WORKDIR/\$TEST_DIR
+        rm -rf \$NF_TEST_DIR
     fi
 
     """
