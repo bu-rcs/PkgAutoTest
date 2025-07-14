@@ -5,6 +5,7 @@ params.errorStrategy = 'ignore' // "ignore"- will continue with other tests if t
 			    // "terminate" - kill all tests when error is encountered
 params.qsub_path = ""
 params.project = "rcstest"  // Value to be used for the -P directive for qsub
+params.keep_passed = "true" // If true, the passed tests will be kept in the output directory
 
 nextflow.enable.dsl=2
 
@@ -51,8 +52,6 @@ process runTests {
     ## COPY TEST DIRECTORY INTO WORK DIRECTORY 
     cp -r \$TEST_DIR \$WORKDIR
 
-    # CD INTO TEST DIRECTORY
-    cd `basename \$TEST_DIR`
 
     ## PRINT ENVIRONMENT VARIABLES ASSOCIATED WITH THE TEST
     echo MODULE=$module_name_version
@@ -66,6 +65,12 @@ process runTests {
     echo RESULTS=\$RESULTS
     echo WORKDIR=\$WORKDIR
     echo USER=\$USER
+    echo keep_passed=${params.keep_passed}
+
+    # CD INTO TEST DIRECTORY
+    BASE_NAME=`basename \$TEST_DIR` 
+    NF_TEST_DIR=\$WORKDIR/\$BASE_NAME     # GET THE NAME OF THE TEST DIRECTORY
+    cd \$NF_TEST_DIR
 
     ## APPEND XVFB KILL COMMAND TO QSUB FILE (see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18)
     echo '\n#### CODE BLOCK INSERTED BY NEXTFLOW ####' >> \$QSUB_FILE
@@ -101,6 +106,17 @@ cat > test_metrics.csv << EOF
 job_number, hostname, qsub_file, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
 \$JOB_ID, \$HOSTNAME, \$QSUB_FILE, \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date, \$PWD
 EOF
+
+
+    # Check if the test directory should be kept or deleted based on the test result and keep_passed parameter
+    if [[ \$TEST_RESULT == PASSED &&  ${params.keep_passed} == true ]]
+    then
+        echo "Parameter keep_passed=${params.keep_passed}, keeping the test directory."
+    elif [[ \$TEST_RESULT == PASSED &&  ${params.keep_passed} == false ]]
+    then
+        echo "Parameter keep_passed=${params.keep_passed} and test result is \$TEST_RESULT, therefore deleting the test directory."
+        rm -rf \$NF_TEST_DIR
+    fi
 
     """
 }

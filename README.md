@@ -160,6 +160,12 @@ One can also run all the tests on the host machine by setting the `--executor` f
 nextflow pkgtest.nf --csv_input module_list.csv  --executor local
 ```
 
+If you wish to have the nextflow pipeline delete the test directory if a module test passes, then set `--keep_passed` to `false`.  By default this value is set to `true`:
+
+```bash
+nextflow pkgtest.nf --csv_input module_list.csv  --keep_passed false
+```
+
 If a process failed, check the [Troubleshooting](#troubleshooting) section, otherwise proceed to [Step 3](#step-3---review-the-results) to review the test results.
 
 NOTE: You can resume a Nextflow process if it terminated early, so one does not lose all the progress.  This can be done by adding a [`-resume`](https://training.nextflow.io/basic_training/cache_and_resume/) flag to the command. This will use the cached results from the last Nextflow run and resume from the last successful process.
