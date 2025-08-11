@@ -263,7 +263,7 @@ class SccModule():
            
     
 #%% get_modules_from_dir
-def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools', 'fhspl'], ignore_excludes=False, only_module_name=None, skip_log='skipped.log'):
+def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools', 'fhspl','tesmall'], ignore_excludes=False, only_module_name=None, skip_log='skipped.log'):
     ''' From a directory of published modules (like /share/module.8), search down to find all module/version pairs.
         Find symlinks and use them to build modname/version strings, as this is how they are published.
         
