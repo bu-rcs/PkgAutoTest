@@ -1,3 +1,11 @@
+# Usage:
+#
+# test_module.sh mod_name mod_ver
+#
+# to simplify the single module test after installation
+# it will automatically launch the test.qsub via
+# PkgAutoTest's nf_pkgtest
+
 #!/bin/bash
 
 module purge
@@ -13,3 +21,7 @@ CSV=${MOD_NAME}.csv
 echo "test csv generated: $CSV"
 find_qsub.py -m $MOD_NAME/$MOD_VER $CSV
 nf_pkgtest $CSV
+
+
+
+
