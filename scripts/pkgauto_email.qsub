@@ -28,5 +28,10 @@ head -n 1 report_modules_crontab.csv > fail_report_modules_crontab.csv
 # Get all the failed tests
 grep FAILED report_modules_crontab.csv >> fail_report_modules_crontab.csv
 
+# Generate list of ghost modules (module tests which were terminated from Nextflow)
+grep -E "Process .* terminated with an error exit status" .nextflow.log* \
+| sed -nE 's/.*runTests \(([^)]*)\).*/\1/p' \
+| sort -u > Nextflow_terminated_taskList.txt
+
 # Send email(s) to ServiceNow
 email_notif.pl fail_report_modules_crontab.csv
