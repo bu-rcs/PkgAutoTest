@@ -37,6 +37,8 @@ import pprint
 import functools as ft
 from multiprocessing import Pool
 import itertools as it
+import shlex
+import tqdm
 # TODO: print output using logging module.
 #import logging
     
@@ -49,7 +51,7 @@ class SccModule():
     # List of the column headers, in the output order.
     HEADERS=['module_name','version','module_name_version','module_pkg_dir',
              'module_installer','module_install_date','module_category',
-             'module_prereqs','test_path','qsub_options']
+             'module_prereqs','test_path','qsub_options', 'qsub_valid']
     # If the column headers change, make sure to update to_csv_rows()
     
     ''' Load all the info needed for a module '''
@@ -74,6 +76,24 @@ class SccModule():
         # The test.*.qsub paths are the keys, the values are the qsub options
         # for each.
         self.tests = self.get_test_qsub_info(mod_path)
+        # Now that qsub files have been found, test each for validity
+        self.qsub_valid = self.get_qsub_validity(self.tests)
+
+    def get_qsub_validity(self, tests):
+        """ For each test.qsub and test.*.qsub,
+            run the qsub check function, qsub -w p file.qsub """
+        valid = {}
+        # The keys in tests are the qsub paths.
+        for qsub_file in tests:
+            cmd = f'qsub -w p {qsub_file}'
+            cmd = shlex.split(cmd)
+            result = subprocess.run(cmd,stderr=subprocess.DEVNULL, text=True, stdout=subprocess.PIPE)
+            msg = result.stdout# .decode('utf-8')
+            # If "verification: no suitable queues" is the result, then this
+            # qsub has bad options!  If it says "verification: found suitable queue"
+            # then it's a-ok.
+            valid[qsub_file] = msg.find('verification: found suitable queue') >= 0
+        return valid
 
     def __lt__(self, other):
         ''' Less than - used for sorting. Compare the name_version'''
@@ -240,7 +260,8 @@ class SccModule():
                   'module_category':self.category,
                   'module_prereqs':self.prereqs,
                   'test_path':test,
-                  'qsub_options':self.tests[test]}
+                  'qsub_options':self.tests[test],
+                  'qsub_valid':str(self.qsub_valid[test])}
             # Convert to a list in the HEADERS order
             row = []
             for head in SccModule.HEADERS:
@@ -260,7 +281,7 @@ class SccModule():
             msg = f'{args[0]}   {e}'
         return scc_mod, msg
            
-    
+
 #%% get_modules_from_dir
 def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstools', 'fhspl','tesmall'], ignore_excludes=False, only_module_name=None, skip_log='skipped.log'):
     ''' From a directory of published modules (like /share/module.8), search down to find all module/version pairs.
@@ -308,6 +329,10 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
                         filt_info2.append(f)
             # Replace the info[2] list with the filtered links
             info = (info[0], info[1], filt_info2)
+
+        # if info[0] is the value of directory, skip it.
+        if info[0]==directory:
+            continue
         # If the exclude_dirs have shown up, skip this one and carry on.
         skip = False
         if not ignore_excludes:
@@ -330,8 +355,9 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
         versions = filter(lambda x: os.path.islink(os.path.join(info[0],x)), versions)
         # and now from the lua files get the version number
         versions = map(lambda x: os.path.splitext(x)[0], versions)
+        versions = list(versions)
         # and for each version join it to the mod_name and store
-        modules.extend((mod_name + '/' + x for x in versions))
+        modules.extend([mod_name + '/' + x for x in versions])
 
     if not ignore_excludes:
         with open(skip_log,'w') as sl:
