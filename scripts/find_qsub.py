@@ -24,7 +24,6 @@
 
 
 # TODO: make it work to find R code and other special cases
-# TODO: Add installer username to the csv file - process the notes.txt file.
 
 # TODO: Implement a class that produces all of the required info
 #       for a module.
@@ -382,9 +381,41 @@ def save_csv(test_list, out_csv):
 #%% main
 
 class SplitArgs(argparse.Action):
-    ''' This is used to process comma-separated values in argparse.'''
+    """ This is used to process comma-separated values in argparse."""
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, [x.strip() for x in values.split(',')])
+
+def get_excluded_modules(exclusion_file: object = None, ignore_excludes: bool = False) -> list[str]:
+    """ Read in the excluded modules from the file exclusion. Simple format:
+
+        module_name,reason
+        mod_name_1,"reason for exclusion in double quotes"
+        mod_name_2,"reason for exclusion in double quotes"
+        etc.
+
+        Return those as a list.
+    """
+    # If we are ignoring exclusions, return a list of just
+    # fhspl as that is ALWAYS excluded.
+    if ignore_excludes:
+        return ['fhspl']
+    # otherwise...carry on.
+    if not exclusion_file:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        exclusion_file = os.path.join(script_dir, "exclude.csv")
+        print(f'Using default exclusion file: {exclusion_file}')
+    # If this doesn't exist, throw an exception
+    if not os.path.isfile(exclusion_file):
+        raise FileNotFoundError(f"Not a file: {exclusion_file}")
+    if not os.access(exclusion_file, os.R_OK):
+        raise PermissionError(f"File is not readable: {exclusion_file}")
+    # everything is a-ok, open it and read it into a list with no newlines.
+    with open(exclusion_file) as f:
+        mod_names = f.readlines()
+        # Toss the first element as that's the header row.
+        mod_names.pop(0)
+    return [x.split(',')[0].strip() for x in mod_names]
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Find test.qsub files")
@@ -395,12 +426,14 @@ if __name__ == '__main__':
                         default="/share/module.8")
     parser.add_argument("-p","--pkg", dest="pkg_path", default = 'ALL', 
                         help="Limit tests to a particular /share/pkg directory. Defaults to the value ALL, which means any /share/pkg directory used by a module.")
-    parser.add_argument("--no_exclude",dest='nox', action="store_true", default=False, 
+    parser.add_argument("--inc_extra_mod_dirs",dest='nox', action="store_true", default=False,
                         help="Normally the test and rcstools directories are excluded in /share/module. This removes the exclusion")
     parser.add_argument("--err", dest='err_file', default="errors.log", help='File to write errors to. Defaults to errors.log. If there are no errors this file is not created.')
     parser.add_argument("out_csv",help="output CSV file for use with Nextflow pipeline.")
     parser.add_argument("--skip", dest='skip_file', default='skipped.log',
-                        help='File to log skipped module tests.') 
+                        help='File to log skipped module tests.')
+    parser.add_argument("--exclusion", dest='exclusion', help='File containing a list of modules to exclude from testing. Defaults to "exclude.csv" in the'+
+                        ' same directory as this script.')
     args = parser.parse_args()
 
     if (not args.mod_name and not args.directory):
@@ -415,9 +448,11 @@ if __name__ == '__main__':
     # =============================================================================
     mod_names = []
     if args.directory:
-        mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path, 
-                                        ignore_excludes=args.nox, only_module_name=args.mod_name,
-                                        skip_log=args.skip_file)
+        exclude_mods = get_excluded_modules(args.exclusion, args.nox)
+        mod_names = get_modules_from_dir(args.directory, pkg_path=args.pkg_path,
+                                         exclude_dirs=exclude_mods,
+                                         ignore_excludes=args.nox, only_module_name=args.mod_name,
+                                         skip_log=args.skip_file)
     
     if not mod_names:
         print('No modules were found. Double check the module search directory.')

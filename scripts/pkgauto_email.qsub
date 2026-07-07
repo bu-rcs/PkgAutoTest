@@ -21,7 +21,7 @@ module load nextflow pkgautotest
 
 # defaults to all available pkg8 tests.
 find_qsub.py -p /share/pkg.8 modules_crontab.csv 
-nextflow $PKGTEST_SCRIPT --csv_input modules_crontab.csv
+nextflow $PKGTEST_SCRIPT --csv_input modules_crontab.csv --keep_passed false
 
 # Extract the header row
 head -n 1 report_modules_crontab.csv > fail_report_modules_crontab.csv
