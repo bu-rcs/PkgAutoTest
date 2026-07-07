@@ -75,6 +75,23 @@ class SccModule():
         # for each.
         self.tests = self.get_test_qsub_info(mod_path)
 
+    def gpu_filter_tests(self, gpu_only=False, no_gpus=False):
+        """ Remove non-GPU or GPU tests """
+        tmp_tests = {}
+        use_gpu = lambda x: x.find("-l gpus") >= 0
+        for test in self.tests:
+            if gpu_only and not no_gpus:
+                # if the string "-l gpus" is present in the test's
+                # qsub opts then this is a GPU test and it should be kept.
+                if use_gpu(self.tests[test]):
+                    tmp_tests[test] = self.tests[test]
+            elif not gpu_only and no_gpus:
+                 if not use_gpu(self.tests[test]):
+                    tmp_tests[test] = self.tests[test]
+            else:
+                tmp_tests[test] = self.tests[test]
+        self.tests = tmp_tests # Store the filtered result.
+
     def __lt__(self, other):
         ''' Less than - used for sorting. Compare the name_version'''
         return self.name_version < other.name_version
@@ -416,6 +433,12 @@ def get_excluded_modules(exclusion_file: object = None, ignore_excludes: bool = 
         mod_names.pop(0)
     return [x.split(',')[0].strip() for x in mod_names]
 
+def gpu_filter(tests, gpu_only, no_gpus):
+    """ tests is a list of SccModule objects."""
+    for t in tests:
+        t.gpu_filter_tests(gpu_only, no_gpus)
+    return tests
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Find test.qsub files")
@@ -434,6 +457,11 @@ if __name__ == '__main__':
                         help='File to log skipped module tests.')
     parser.add_argument("--exclusion", dest='exclusion', help='File containing a list of modules to exclude from testing. Defaults to "exclude.csv" in the'+
                         ' same directory as this script.')
+    # Apply GPU filter
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--gpus-only', dest='gpus_only', default=False, action='store_true', help='Only include tests that use a GPU.')
+    group.add_argument('--no-gpus', dest='no_gpus', default=False, action='store_true', help='Only include tests that do NOT use a GPU.')
+
     args = parser.parse_args()
 
     if (not args.mod_name and not args.directory):
@@ -477,6 +505,9 @@ if __name__ == '__main__':
             else:
                 if scc_mod:
                     test_list.append(scc_mod)       
+
+    # Apply GPU filtering, if any
+    test_list = gpu_filter(test_list, args.gpus_only, args.no_gpus)
 
     # No errors found, delete the error file
     if not found_error:
