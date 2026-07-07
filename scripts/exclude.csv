@@ -1,0 +1,8 @@
+module_name,reason
+test,"This is a module testing directory."
+rcstools,"Internal RCS tools."
+fhspl,"Framingham Heart Study."
+vscode,"vscode causes endless trouble."
+casa,"This is a strange piece of CLI+GUI software. Highly difficult to test automatically."
+imager,"This is a strange piece of CLI+GUI software. Highly difficult to test automatically."
+miniconda,"Too dependent on successful Internet downloads, test fails often for reasons we can't control."
