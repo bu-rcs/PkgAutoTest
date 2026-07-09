@@ -143,6 +143,13 @@ class RunEnv:
             for key in list(env):
                 if key.startswith("BASH_FUNC_module") or key.startswith("BASH_FUNC_ml"):
                     del env[key]
+            # pkgtest.nf's runTests echoes SGE-provided variables ($NSLOTS, $QUEUE,
+            # $JOB_ID, ...), and Nextflow runs task scripts with `set -u`, so any
+            # unset variable aborts the task. Off-SGE (executor local) these are not
+            # set, so provide inert defaults (SGE would supply them for real).
+            for key, val in (("NSLOTS", "1"), ("QUEUE", "local"), ("JOB_ID", "local"),
+                             ("HOSTNAME", "localhost"), ("USER", "selftest")):
+                env.setdefault(key, val)
         return env
 
     # -- runners -----------------------------------------------------------
