@@ -47,6 +47,14 @@ Add `--executor local` to exercise integration mode without submitting to SGE.
 - **Exit code**: non-zero if any test fails — usable in cron/CI.
 - **JUnit XML** (optional): `bash tests/run_local.sh --junitxml=tests/results.xml`.
 
+## Continuous integration
+
+The **local** tier runs automatically on GitHub Actions for every push to `main`
+and every pull request (see [`.github/workflows/tests.yml`](../.github/workflows/tests.yml)).
+The runner installs Python + Nextflow + Java, points `/bin/sh` at bash (find_qsub.py
+uses a `|&` bashism), and runs `tests/run_local.sh`. The integration tier is SCC-only
+and is not run in CI.
+
 ## Adding a new test
 
 Create `tests/test_<feature>.py` with one or more `test_*` functions. Reuse the
