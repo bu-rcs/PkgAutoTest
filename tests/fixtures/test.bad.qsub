@@ -1,0 +1,12 @@
+#!/bin/bash -l
+#
+# Self-test fixture: an INVALID test.qsub for the PkgAutoTest suite.
+# It requests the bogus parallel environment 'mtresf' (the same option proven
+# invalid in the repo's gdal2.csv), so 'qsub -w p' rejects it and find_qsub.py
+# records qsub_valid=False. The pipeline must then route this to reportInvalid
+# and mark it FAILED WITHOUT running it -- so the body below never executes.
+#
+#$ -P @PROJECT@
+#$ -pe mtresf 5
+
+echo "Passed"

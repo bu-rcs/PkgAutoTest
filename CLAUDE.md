@@ -42,7 +42,7 @@ scripts/test_module.sh gdal 3.8.4
 
 When installed as the SCC `pkgautotest` Lmod module, `find_qsub.py` and `nf_pkgtest` are on `$PATH`, `$PKGTEST_SCRIPT` points at `pkgtest.nf`, and `$SCC_PKGAUTOTEST_DIR` at the install root. [nextflow/nf_pkgtest](nextflow/nf_pkgtest) is the thin wrapper: `nf_pkgtest <input.csv>`.
 
-There is no build step, no linter config, and no test suite for this repo's own code — "testing" here means running the pipeline against real modules on the cluster.
+There is no build step or linter config. Two kinds of "testing" exist: running the pipeline against real cluster modules (the tool's day-to-day purpose), and the repo's own **self-test suite** in [tests/](tests/) — a pytest suite validating `find_qsub.py` + `pkgtest.nf` against a checked-in fixture. It has two tiers via `--mode`: `local` (default; stubs `module`/`qsub`, `--executor local`, needs no Lmod/SGE — see [tests/environment.yml](tests/environment.yml)) and `integration` (real Lmod/SGE on an SCC node). Run `bash tests/run_local.sh -v` or `bash tests/run_integration.sh -v`. Add a feature test as a new `tests/test_<feature>.py` reusing the `run_env` fixture in [tests/conftest.py](tests/conftest.py).
 
 ## Exclusions and skips
 

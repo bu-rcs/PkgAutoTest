@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+# Test double for Lmod's `module`, used only by the local-mode self-test.
+# find_qsub.py runs:  module use <dir>; module show <mod>/<ver> |& xargs -0 echo
+# and parses SCC_<UPPER>_DIR out of the `module show` output.
+#
+# We implement just enough:
+#   * `use` / anything else -> no-op
+#   * `show <mod>/<ver>`     -> emit a fake modulefile display (to stderr, like
+#                               real Lmod) with SCC_<UPPER>_DIR pointing into
+#                               $STUB_PKG_ROOT, plus a whatis Categories line.
+#
+# The real `module` is an exported bash function on the SCC; the harness removes
+# that function from the environment (deletes BASH_FUNC_module*) and prepends this
+# stub's directory to PATH so this script is used instead.
+
+case "${1:-}" in
+    show)
+        modver="$2"
+        name="${modver%%/*}"
+        ver="${modver#*/}"
+        upper="$(printf '%s' "$name" | tr 'a-z-' 'A-Z_')"
+        # Real Lmod writes `module show` to stderr; find_qsub captures both via |&.
+        {
+            echo "whatis(\"Categories:  selftest\")"
+            echo "setenv(\"SCC_${upper}_DIR\",\"${STUB_PKG_ROOT}/${name}/${ver}/install\")"
+        } >&2
+        ;;
+    *)
+        : # use / load / etc. -> no-op
+        ;;
+esac
+exit 0

@@ -236,6 +236,32 @@ NOTE: For a test that was skipped due to invalid qsub options (`qsub_valid=False
 
 Due to the copying of the module test directories to the working directories before tests are run a fair amount (several dozen GB) of disk space is consumed by the working directories. After reviewing the Nextflow results it is recommended that you delete at least the working directories from tests that have passed from the `/projectnb/rcstest` project.
 
+## Testing
+
+This repo has a self-test suite under [tests/](tests/) (pytest) that validates
+`find_qsub.py` and the pipeline against a checked-in fixture — separate from testing
+actual cluster modules. It runs in two tiers:
+
+- **Local** (default) — stubs the `module` and `qsub` commands and runs the pipeline
+  with `--executor local`, so it needs no Lmod, no SGE, and no `module load`:
+
+  ```bash
+  conda env create -f tests/environment.yml   # once (on the SCC: module load miniconda first)
+  conda activate pkgautotest-selftest
+  bash tests/run_local.sh -v
+  ```
+
+- **Integration** — uses the real `module`/`qsub` and the real SGE scheduler on an SCC node:
+
+  ```bash
+  module load python3 nextflow
+  bash tests/run_integration.sh --project scv -v
+  ```
+
+Results are reported as pytest console output plus a process exit code (add
+`--junitxml=tests/results.xml` for machine-readable output). See [tests/README.md](tests/README.md)
+for details and how to add new tests.
+
 ## Troubleshooting
 
 **Nextflow Process(es) failed while running Nextflow pipeline.**

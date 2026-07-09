@@ -1,0 +1,7 @@
+-- Self-test fixture modulefile template for the PkgAutoTest suite.
+-- The harness substitutes @MOD_UPPER@ (upper-cased module name) and @PKGDIR@
+-- (absolute path to the generated package dir) at run time. In integration mode
+-- real Lmod reads this via `module show`; find_qsub.py parses SCC_<NAME>_DIR to
+-- locate the module's test/ directory.
+whatis("Categories:  selftest")
+setenv("SCC_@MOD_UPPER@_DIR","@PKGDIR@/install")
