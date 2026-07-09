@@ -64,7 +64,14 @@ jobs:
         run: touch "$HOME/.bashrc"
 
       - name: Run local self-tests
-        run: bash tests/run_local.sh -v --junitxml=tests/results.xml
+        run: bash tests/run_local.sh -v --junitxml=tests/results.xml --keep
+
+      - name: Dump Nextflow task logs on failure (diagnostic)
+        if: failure()
+        run: |
+          for f in $(find tests/.selftest_work.* \( -name '.command.sh' -o -name '.command.err' -o -name '.command.out' -o -name '.command.log' -o -name 'results.txt' -o -name 'log.txt' \) 2>/dev/null | sort); do
+            echo "===== $f ====="; cat "$f"; echo
+          done
 
       - name: Upload test results
         if: always()
