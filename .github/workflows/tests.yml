@@ -45,7 +45,10 @@ jobs:
           java-version: '17'
 
       - name: Install Nextflow
+        # Run the installer from a temp dir: it writes a file named `nextflow`,
+        # which would collide with the repo's nextflow/ directory at the repo root.
         run: |
+          cd "$RUNNER_TEMP"
           curl -s https://get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
           nextflow -version
