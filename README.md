@@ -2,6 +2,19 @@
 
 This repo contains a [Nextflow](https://www.nextflow.io/docs/latest/index.html) pipeline and several scripts to perform automated testing of the SCC module software packages.
 
+## Monthly Run
+
+The monthly run of `PkgAuthTest` is done under Brian's test account, `bgtest`. The crontab entry is on `scc1.bu.edu` and looks like this (with an appropriate substitute for VER):
+
+```bash
+SHELL=/bin/bash
+MAILTO=bgregor@bu.edu
+
+
+# pkgautotest cronjob.  Midnight on the first of every month.
+0 0 1 * *   /share/pkg.8/pkgautotest/VER/install/PkgAutoTest-VER.0/scripts/pkgauto_cron.sh 2>&1 /dev/null
+```
+
 ## Running the Pipeline
 
 First one needs to get a copy of the scripts.  On the SCC load the `nextflow` and `pkgautotest` module to get the latest stable release:
