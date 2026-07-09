@@ -18,6 +18,11 @@ concurrency:
 jobs:
   local:
     runs-on: ubuntu-latest
+    env:
+      # Pin Nextflow to a version used on the SCC. 'latest' (26.x) runs task
+      # scripts with stricter shell flags (pipefail) that abort pkgtest.nf's
+      # `grep ... | wc -l` steps when grep finds no match on a passing test.
+      NXF_VER: "24.04.4"
     defaults:
       run:
         shell: bash
