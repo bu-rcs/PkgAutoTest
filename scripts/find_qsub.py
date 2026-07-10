@@ -457,7 +457,10 @@ def get_excluded_modules(exclusion_file: object = None, ignore_excludes: bool = 
         mod_names = f.readlines()
         # Toss the first element as that's the header row.
         mod_names.pop(0)
-    return [x.split(',')[0].strip() for x in mod_names]
+    mod_names = [x.split(',')[0].strip() for x in mod_names]
+    # only keep strings with names, in case of newline characters
+    mod_names = filter(lambda x: x, mod_names)
+    return list(mod_names)
 
 def gpu_filter(tests, gpu_only, no_gpus):
     """ tests is a list of SccModule objects."""
