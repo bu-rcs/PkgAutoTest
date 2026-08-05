@@ -20,6 +20,6 @@ mkdir $RUN_DIR
 cd $RUN_DIR
 
 # Submit the testing job
-qsub $SCC_PKGAUTOTEST_DIR/PkgAutoTest/scripts/pkgauto_email.qsub
+qsub $SCC_PKGAUTOTEST_DIR/scripts/pkgauto_email.qsub
 
 # and done!
