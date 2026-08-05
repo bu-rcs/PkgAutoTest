@@ -1,0 +1,26 @@
+# Conda environment for running the PkgAutoTest self-test suite locally, with no
+# `module load` required. Create it once, then activate and run the tests:
+#
+#     conda env create -f tests/environment.yml     # (on the SCC: module load miniconda first)
+#     conda activate pkgautotest-selftest
+#     bash tests/run_local.sh -v
+#
+# python>=3.9 is required because find_qsub.py uses 3.9+ syntax; tqdm is one of its
+# imports. pytest runs the suite. nextflow (+ openjdk) lets the pipeline test run
+# with --executor local; remove those two lines if nextflow is already available
+# (e.g. `module load nextflow`).
+#
+# IMPORTANT: nextflow and openjdk are version-pinned. Leaving them unpinned lets the
+# solver install an ancient nextflow and/or a JDK newer than nextflow supports
+# (nextflow needs Java 11-21), which fails with "cannot find Java or it's a wrong
+# version". openjdk 17 (LTS) works with current nextflow.
+name: pkgautotest-selftest
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python>=3.9
+  - pytest
+  - tqdm
+  - nextflow>=24
+  - openjdk=17

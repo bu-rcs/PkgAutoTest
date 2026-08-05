@@ -1,0 +1,11 @@
+#!/bin/bash -l
+#
+# Self-test fixture: a VALID test.qsub for the PkgAutoTest suite.
+# Its qsub options are accepted by 'qsub -w p', so find_qsub.py records
+# qsub_valid=True and the pipeline runs it. It prints exactly "Passed" so
+# the pipeline's pass/fail rule marks it PASSED (exit 0, only "Passed" in stdout).
+#
+#$ -P @PROJECT@
+#$ -l h_rt=00:05:00
+
+echo "Passed"

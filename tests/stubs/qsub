@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Test double for SGE's `qsub`, used only by the local-mode self-test.
+# find_qsub.py's get_qsub_validity() runs:  qsub -w p <file>
+# and treats the test as valid iff stdout contains 'verification: found suitable queue'.
+#
+# This stub simulates the scheduler's verdict WITHOUT contacting a qmaster:
+# a script requesting the bogus parallel environment 'mtresf' is reported as
+# having no suitable queue (invalid); anything else is reported valid.
+#
+# `qsub` is a real binary (not a shell function), so prepending this stub's
+# directory to PATH makes it win.
+
+# The submitted script is the last argument (find_qsub calls: qsub -w p <file>).
+file="${@: -1}"
+
+if [ -f "$file" ] && grep -q 'mtresf' "$file"; then
+    echo "verification: no suitable queues"
+else
+    echo "verification: found suitable queue(s)"
+fi
+exit 0
