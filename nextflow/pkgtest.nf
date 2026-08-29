@@ -50,62 +50,73 @@ process runTests {
     RESULTS=\$WORKDIR/results.txt       # TEXT FILE WHERE RESULTS OF A TEST ARE STORED.
     
     ## COPY TEST DIRECTORY INTO WORK DIRECTORY 
-    cp -r \$TEST_DIR \$WORKDIR
+    EXIT_CODE_CP=`cp -r \$TEST_DIR \$WORKDIR; echo \$?`
 
-
-    ## PRINT ENVIRONMENT VARIABLES ASSOCIATED WITH THE TEST
-    echo MODULE=$module_name_version
-    echo NSLOTS=\$NSLOTS 
-    echo QUEUE=\$QUEUE
-    echo HOSTNAME=\$HOSTNAME
-    echo JOB_ID=\$JOB_ID
-    echo TEST_DIR=\$TEST_DIR
-    echo QSUB_FILE=\$QSUB_FILE
-    echo LOG=\$LOG
-    echo RESULTS=\$RESULTS
-    echo WORKDIR=\$WORKDIR
-    echo USER=\$USER
-    echo keep_passed=${params.keep_passed}
-
-    # CD INTO TEST DIRECTORY
-    BASE_NAME=`basename \$TEST_DIR` 
-    NF_TEST_DIR=\$WORKDIR/\$BASE_NAME     # GET THE NAME OF THE TEST DIRECTORY
-    cd \$NF_TEST_DIR
-
-    ## APPEND XVFB KILL COMMAND TO QSUB FILE (see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18)
-    echo '\n#### CODE BLOCK INSERTED BY NEXTFLOW ####' >> \$QSUB_FILE
-    echo '#### see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18' >> \$QSUB_FILE
-    echo 'pgrep -P \$\$ -f Xvfb | while read line ; do kill -9 \$line; done' >> \$QSUB_FILE
-    echo '#########################################' >> \$QSUB_FILE
-
-    ## RUN MODULE TEST
-    EXIT_CODE=`bash \$QSUB_FILE \$LOG >  \$RESULTS; echo \$?`
-
-    ## POST PROCESSING
-    cd \$WORKDIR
-
-    # GET COUNT OF 'Passed' KEYWORD IN THE results.txt
-    PASSED=`grep -iow 'Passed' results.txt | wc -l`
-
-    # GET COUNT OF 'Error' KEYWORD IN THE results.txt
-    FAILED=`grep -iow 'Error' results.txt | wc -l`
-
-    # GET COUNT OF 'error' KEYWORD IN THE log.txt
-    LOG_ERRORS=`grep -iow 'error' log.txt | wc -l`
-
-    # THE TEST PASSES IF ONLY WORDS "Passed" ARE FOUND
-    # IN results.txt AND THE \$EXIT_CODE IS 0
-    if [ "\$(grep -c Passed results.txt)" -gt 0 ] && [ "\$(grep -c -v Passed results.txt)" -eq 0 ] && [ \$EXIT_CODE -eq 0 ]
+    if [ \$EXIT_CODE_CP -ne 0 ]
     then
-       TEST_RESULT=PASSED  
-    fi 
+        
+        echo "ERROR: Exit code: \$EXIT_CODE_CP when copying test directory"
+
+        PASSED="NA"
+        FAILED="NA"
+        LOG_ERRORS="NA" 
+        EXIT_CODE=\$EXIT_CODE_CP
+        TEST_RESULT=FAILED
+
+    else
+        ## PRINT ENVIRONMENT VARIABLES ASSOCIATED WITH THE TEST
+        echo MODULE=$module_name_version
+        echo NSLOTS=\$NSLOTS 
+        echo QUEUE=\$QUEUE
+        echo HOSTNAME=\$HOSTNAME
+        echo JOB_ID=\$JOB_ID
+        echo TEST_DIR=\$TEST_DIR
+        echo QSUB_FILE=\$QSUB_FILE
+        echo LOG=\$LOG
+        echo RESULTS=\$RESULTS
+        echo WORKDIR=\$WORKDIR
+        echo USER=\$USER
+        echo keep_passed=${params.keep_passed}
+
+        # CD INTO TEST DIRECTORY
+        BASE_NAME=`basename \$TEST_DIR` 
+        NF_TEST_DIR=\$WORKDIR/\$BASE_NAME     # GET THE NAME OF THE TEST DIRECTORY
+        cd \$NF_TEST_DIR
+
+        ## APPEND XVFB KILL COMMAND TO QSUB FILE (see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18)
+        echo '\n#### CODE BLOCK INSERTED BY NEXTFLOW ####' >> \$QSUB_FILE
+        echo '#### see issue #18 https://github.com/bu-rcs/PkgAutoTest/issues/18' >> \$QSUB_FILE
+        echo 'pgrep -P \$\$ -f Xvfb | while read line ; do kill -9 \$line; done' >> \$QSUB_FILE
+        echo '#########################################' >> \$QSUB_FILE
+
+        ## RUN MODULE TEST
+        EXIT_CODE=`bash \$QSUB_FILE \$LOG >  \$RESULTS; echo \$?`
+
+        ## POST PROCESSING
+        cd \$WORKDIR
+
+        # GET COUNT OF 'Passed' KEYWORD IN THE results.txt
+        PASSED=`grep -iow 'Passed' results.txt | wc -l`
+
+        # GET COUNT OF 'Error' KEYWORD IN THE results.txt
+        FAILED=`grep -iow 'Error' results.txt | wc -l`
+
+        # GET COUNT OF 'error' KEYWORD IN THE log.txt
+        LOG_ERRORS=`grep -iow 'error' log.txt | wc -l`
+
+        # THE TEST PASSES IF ONLY WORDS "Passed" ARE FOUND
+        # IN results.txt AND THE \$EXIT_CODE IS 0
+        if [ "\$(grep -c Passed results.txt)" -gt 0 ] && [ "\$(grep -c -v Passed results.txt)" -eq 0 ] && [ \$EXIT_CODE -eq 0 ]
+        then
+            TEST_RESULT=PASSED  
+    fi
 
 
     # WRITE THE TEST RESULT INFORMATION TO A CSV FILE
-cat > test_metrics.csv << EOF
-job_number, hostname, qsub_file, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
-\$JOB_ID, \$HOSTNAME, \$QSUB_FILE, \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date, \$PWD
-EOF
+    cat > test_metrics.csv << EOF
+    job_number, hostname, qsub_file, test_result,module, tests_passed, tests_failed, log_error_count, exit_code, installer, category, install_date,  workdir
+    \$JOB_ID, \$HOSTNAME, \$QSUB_FILE, \$TEST_RESULT, $module_name_version, \$PASSED, \$FAILED, \$LOG_ERRORS, \$EXIT_CODE, $module_installer, $module_category, $module_install_date, \$PWD
+    EOF
 
 
     # Check if the test directory should be kept or deleted based on the test result and keep_passed parameter
