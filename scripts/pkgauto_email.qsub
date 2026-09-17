@@ -23,10 +23,20 @@ module load nextflow pkgautotest
 find_qsub.py -p /share/pkg.8 modules_crontab.csv 
 nextflow $PKGTEST_SCRIPT --csv_input modules_crontab.csv --keep_passed false
 
+# The pipeline assembles report_modules_crontab.csv itself when it completes.
+# Run the collector again here in case the pipeline was killed before it got
+# that far: it is idempotent, and rebuilds the report from whatever per-test
+# rows made it to disk.
+collect_report.py --test_results_dir test_results_modules_crontab \
+                  --input modules_crontab.csv \
+                  --output report_modules_crontab.csv
+
 # Extract the header row
 head -n 1 report_modules_crontab.csv > fail_report_modules_crontab.csv
-# Get all the failed tests
-grep FAILED report_modules_crontab.csv >> fail_report_modules_crontab.csv
+# Get all the failed tests.  NO_RESULT rows are tests that produced no result
+# at all (never ran, or the run was killed), so they belong in the failure
+# report too.
+grep -E 'FAILED|NO_RESULT' report_modules_crontab.csv >> fail_report_modules_crontab.csv
 
 # Send email(s) to ServiceNow
 email_notif.pl fail_report_modules_crontab.csv
