@@ -179,6 +179,14 @@ If you wish to have the nextflow pipeline delete the test directory if a module 
 nextflow pkgtest.nf --csv_input module_list.csv  --keep_passed false
 ```
 
+As each module test completes, its result is written as a single-row CSV file into a test results directory, by default `test_results_<input CSV name>` (e.g. `test_results_module_list`).  When the pipeline finishes, `collect_report.py` concatenates those rows into the report CSV.  The directory can be changed with `--test_results_dir`:
+
+```bash
+nextflow pkgtest.nf --csv_input module_list.csv  --test_results_dir /scratch/my_rows
+```
+
+Because each test's row lands on disk as soon as that test finishes, the test results directory can be inspected while the pipeline is still running, and a run that was killed can still be reported on.  See [Assembling the report by hand](#assembling-the-report-by-hand).
+
 If a process failed, check the [Troubleshooting](#troubleshooting) section, otherwise proceed to [Step 3](#step-3---review-the-results) to review the test results.
 
 NOTE: You can resume a Nextflow process if it terminated early, so one does not lose all the progress.  This can be done by adding a [`-resume`](https://training.nextflow.io/basic_training/cache_and_resume/) flag to the command. This will use the cached results from the last Nextflow run and resume from the last successful process.
@@ -196,7 +204,7 @@ When the Nextflow pipeline finishes, a CSV file containing the same name as the 
 | job_number                       | The job number for the job. |
 | hostname                         | The hostname of the node the job ran on. |
 | qsub_file                        | The qsub file used for the test. |
-| test_result<sup>1</sup>          | The overall test result. e.g PASSED or FAILED |
+| test_result<sup>1</sup>          | The overall test result: PASSED, FAILED, or NO_RESULT<sup>2</sup> |
 | module                           | Name of the module tested.  |
 | tests_passed                     | Number of times the word "Passed" was found in the stdout stream of the test.qsub run.  |
 | tests_failed                     | Number of times the word "Error" was found in the stdout stream of the test.qsub run.   |
@@ -206,6 +214,24 @@ When the Nextflow pipeline finishes, a CSV file containing the same name as the 
 | category                         | The category of the module as defined in the modulefile.  |
 | install_date                     | The installation date extracted from the notes.txt file for the module.  |
 | workdir                          | The Nextflow working directory that contains log files for the job.  |
+| test_path                        | Full path to the test.qsub file that was run.  Used to match a report row back to its input CSV row.  |
+
+The columns are defined in one place, the `report_columns` map near the top of `nextflow/pkgtest.nf`, which maps each report column name to the shell variable holding its value:
+
+```groovy
+report_columns = [
+    'job_number'     : '$JOB_ID',
+    'hostname'       : '$HOSTNAME',
+    ...
+    'test_path'      : '$TEST_PATH',
+]
+```
+
+Both the header line and the value line of every per-test result file are generated from this map, and the header is passed to `nextflow/collect_report.py`, so nothing can drift out of order.  To add a column, add an entry to the map and set that shell variable in the `runTests` script; add the column name to `NO_RESULT_FIELDS` in `collect_report.py` as well if it should be filled from the input CSV rather than left as `NA`.
+
+<sup>2</sup> A `test_result` of `NO_RESULT` means that test produced no result row at all: it never ran, or the pipeline was killed before it finished.  `collect_report.py` adds these rows by comparing the collected rows against the input CSV, so the report always has one row per input row.
+
+Note that a problem with a module's test files - a missing or unreadable `tests` directory, a `test.qsub` that errors out - is reported as a `FAILED` row and the Nextflow process is still marked as succeeded.  Those are problems with the module or its tests, and the report CSV is where you want to see them.  A *failed* Nextflow process means Nextflow could not create the environment to run the test at all (for example the `qsub` submission itself was rejected), which is a problem with the pipeline or the cluster rather than with the module.
 
 A test passes if the following conditions are met:  
 
@@ -229,7 +255,9 @@ To examine the logs of a specific test, `cd` into the directory specified in the
 
 ## Step 4 - Cleanup, Remove working directories
 
-Due to the copying of the module test directories to the working directories before tests are run a fair amount (several dozen GB) of disk space is consumed by the working directories. After reviewing the Nextflow results it is recommended that you delete at least the working directories from tests that have passed from the `/projectnb/rcstest` project.
+Due to the copying of the module test directories to the working directories before tests are run a fair amount (several dozen GB) of disk space is consumed by the working directories.  These live in the `work` directory where the pipeline was launched, so whichever project you ran from is the one filling up.  After reviewing the Nextflow results it is recommended that you delete at least the working directories from tests that have passed.
+
+Running with `--keep_passed false` deletes the copied test directory of each test that passes as the pipeline runs, which avoids most of this.
 
 ## Troubleshooting
 
@@ -288,4 +316,16 @@ The following are some suggestions on ways to troubleshoot this issue.
 
 **Nextflow Process(es) are running forever**
   
-Use `qstat` to determine the job numbers of the stuck jobs.  The job name will contain the module name and version number.  Use `qdel job_number` to delete the job.  It may take Nextflow a couple minutes to determine the job was deleted.  Nextflow will most likely error this test and so the results will not be included in the report CSV file.
+Use `qstat` to determine the job numbers of the stuck jobs.  The job name will contain the module name and version number.  Use `qdel job_number` to delete the job.  It may take Nextflow a couple minutes to determine the job was deleted.  Nextflow will most likely error this test, and it will appear in the report CSV file as `FAILED`, or as `NO_RESULT` if it never wrote a row.
+
+**Assembling the report by hand**
+
+If the Nextflow process itself was killed and never got to write the report, the per-test rows it already collected are still on disk and the report can be assembled from them at any time:
+
+```bash
+collect_report.py --test_results_dir test_results_module_list \
+                  --input module_list.csv \
+                  --output report_module_list.csv
+```
+
+It prints a summary of how many input rows, collected rows and missing rows there were, writes a `NO_RESULT` row for each test with no row, and exits non-zero if anything was missing.  The report's columns are read from the result files themselves, so no extra argument is needed; if the directory holds no usable result file there is nothing to take them from, and the collector says so and asks for `--header`.
