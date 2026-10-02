@@ -1,4 +1,4 @@
-#!/bin/env python3
+#!/share/pkg.8/python3/3.13.8/install/bin/python
 #%% imports
 # Prototype of a script that finds test.qsub files.
 # This uses the "module avail" function to find files to test.
