@@ -10,7 +10,7 @@
 
 module purge
 module use /share/module.8/rcstools
-module load nextflow
+module load nextflow/25.04.7
 module load pkgautotest
 
 MOD_NAME=$1

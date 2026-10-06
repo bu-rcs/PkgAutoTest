@@ -17,7 +17,7 @@
 module use /share/module.8/rcstools
 
 # use the default nextflow and pkgautotest
-module load nextflow pkgautotest 
+module load nextflow/25.04.7 pkgautotest 
 
 # defaults to all available pkg8 tests.
 find_qsub.py -p /share/pkg.8 modules_crontab.csv 
