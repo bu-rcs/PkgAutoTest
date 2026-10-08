@@ -7,3 +7,4 @@ casa,"This is a strange piece of CLI+GUI software. Highly difficult to test auto
 imager,"This is a strange piece of CLI+GUI software. Highly difficult to test automatically.",bgregor
 miniconda,"Too dependent on successful Internet downloads, test fails often for reasons we can't control.",bgregor
 wine,"Install a lot of things in the home directory, difficult to test anything non-interactively.",bgregor
+tesmall,"The test data requires data accessible only by Katia.",bgregor
