@@ -389,17 +389,51 @@ def get_modules_from_dir(directory, pkg_path=None, exclude_dirs=['test','rcstool
     # If specific module versions were requested, make sure only those are here
     # so if gcc/13.2.0,python3 was requested all gcc ones would have been found,
     # now remove any gcc mod_name/version that is not gcc/13.2.0
-    remove_modules = []
+    # Git issue #61 - need to handle multiple versions of the same module, i.e.
+    # gcc/12.2.0 and gcc/13.2.0
+
+    # Break up the specific_modules list by module name into a dictionary.
+    spec_mod_dict = {}
     for specific in specific_modules:
         smod, sver = specific.split('/')
-        for m in modules:
-            mod,ver = m.split('/')
-            if smod == mod:
-                # module name matched
-                # does the version match?
-                if not sver == ver:
-                    remove_modules.append(m)
-    # now prune the modules list:
+        if smod not in spec_mod_dict:
+            # add it. if there's no version add an empty list.
+            spec_mod_dict[smod] = set()
+            if sver:
+                spec_mod_dict[smod].add(sver)
+        else:
+            # if None, like someone did gcc/13.2.0,gcc, do nothing.
+            if sver:
+                spec_mod_dict[smod].add(sver)
+
+    # For this comparison convert the modules list to a similar dictionary.
+    mod_dict = {}
+    for m in modules:
+        mod, ver = m.split('/')
+        if mod not in mod_dict:
+            mod_dict[mod] = set()
+            if ver:
+                mod_dict[mod].add(ver)
+        else:
+            if ver:
+                mod_dict[mod].add(ver)
+
+    # Now loop through the keys in spec_mod_dict.
+    # For all of its entries, find the ones in modules
+    # that aren't matched via a set difference, and add
+    # them to remove_modules.
+    # Use a set for remove_modules for the fast lookup speed
+    # when pruning the modules list.
+    remove_modules = set()
+    for smod in spec_mod_dict:
+        if smod in mod_dict:
+            # mod_dict is first in this difference as it always contains at least the same
+            # module versions as spec_mod, so the difference properly resolves the
+            # ones we want to remove from the module list.
+            remove_versions = mod_dict[smod] - spec_mod_dict[smod]
+            remove_modules.update(['/'.join([smod, rv]) for rv in remove_versions])
+
+    # now prune the modules list.
     modules = [m for m in modules if m not in remove_modules]
     return modules 
 #%% save_csv
