@@ -20,7 +20,7 @@ MAILTO=bgregor@bu.edu
 First one needs to get a copy of the scripts.  On the SCC load the `nextflow` and `pkgautotest` module to get the latest stable release:
 
 ```bash
-module load nextflow
+module load nextflow/25.04.7
 module use /share/module.8/rcstools
 module load pkgautotest
 ```
@@ -108,7 +108,7 @@ This sections shows a [simplified command](#simple-execution) of running the pip
 To run the Nextflow pipeline the Nextflow software is required.  On the SCC make sure the nextflow module is loaded.
 
 ```bash
-module load nextflow
+module load nextflow/25.04.7
 ```
 
 When using the SCC `pkgautotest` module, run the `nf_pkgtest` command and specify the CSV file generated in [Step 1](#step-1---run-find_qsubpy) as the first argument. In this example we specify `module_list.csv` as the CSV file.
@@ -156,7 +156,7 @@ nextflow pkgtest.nf --csv_input module_list.csv
 If you are using the SCC `pkgautotest` module, the environment variable `$PKGTEST_SCRIPT` will contain the path to the `pkgtest.nf` script, which can be used to run the pipeline:
 
 ```bash
-module load nextflow
+module load nextflow/25.04.7
 module load autopkgtest
 nextflow $PKGTEST_SCRIPT --csv_input module_list.csv
 ```

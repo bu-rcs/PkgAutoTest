@@ -8,7 +8,7 @@
 #$ -N nf_pkgtest
 #$ -m eas
 
-module load nextflow
+module load nextflow/25.04.7
 module use /share/module.8/rcstools
 module load pkgautotest
 

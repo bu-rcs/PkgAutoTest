@@ -11,7 +11,7 @@ cd /projectnb/rcstest/cronjobs
 module use /share/module.8/rcstools
 
 # use the default versions.
-module load nextflow pkgautotest 
+module load nextflow/25.04.7 pkgautotest 
 
 # Timestamped run directory
 RUN_DIR=$(date +"%Y_%m_%d_%H_%M")

@@ -23,7 +23,7 @@ A test PASSES iff exit code is 0 AND `results.txt` contains only the word "Passe
 
 ```bash
 # Standard pipeline run (on SCC)
-module load nextflow
+module load nextflow/25.04.7
 module use /share/module.8/rcstools && module load pkgautotest
 find_qsub.py module_list.csv                       # discover tests
 nf_pkgtest module_list.csv                          # wrapper that runs `nextflow $PKGTEST_SCRIPT --csv_input ...` as an SGE job
