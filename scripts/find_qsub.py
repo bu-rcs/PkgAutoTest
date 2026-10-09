@@ -212,7 +212,14 @@ class SccModule():
             for line in f:
                 # if it starts with #$ it's a qsub command.
                 if line.startswith('#$'):
-                    qsub_cmds.append(line.split('$')[1].strip())
+                    # Drop an inline comment before the directives are joined
+                    # into a single line below. SGE reads each #$ line on its
+                    # own and ignores the rest of that line after a '#', but
+                    # once joined a surviving '#' comments out every option
+                    # that follows it. See issue #49.
+                    cmd = line.split('$')[1].split('#')[0].strip()
+                    if cmd:
+                        qsub_cmds.append(cmd)
 
             def startswith(elem):
                 has_no_flags = False
